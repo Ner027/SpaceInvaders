@@ -2,10 +2,7 @@
 
 void SpriteRenderer::execute(char curTick)
 {
-    if (curTick == 0)
-        spr.erase();
-    else if (curTick == 10)
-        spr.draw();
+
 }
 
 SpriteRenderer::SpriteRenderer(const Sprite &sprite) : spr(sprite)
@@ -21,4 +18,30 @@ void SpriteRenderer::exitCleanly()
 {
     spr.erase();
 }
+
+void SpriteRenderer::moveBy(const Vector2 &df)
+{
+    spr.moveBy(df);
+}
+
+void SpriteRenderer::moveTo(const Vector2 &nPos)
+{
+    spr.moveTo(nPos);
+}
+
+Vector2 SpriteRenderer::getSize()
+{
+    return spr.getSize();
+}
+
+Vector2 SpriteRenderer::getPosition()
+{
+    return spr.getPosition();
+}
+
+Sprite SpriteRenderer::getCurrentSprite()
+{
+    return spr;
+}
+
 

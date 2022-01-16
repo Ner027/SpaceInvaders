@@ -3,7 +3,8 @@
 #include <thread>
 #include <mutex>
 #include <queue>
-#include "../CursesWrapper/IScreenObject.h"
+#include <atomic>
+#include "../CursesWrapper/ScreenObject.h"
 
 using namespace std;
 class RenderManager
@@ -11,14 +12,22 @@ class RenderManager
 private:
     thread renderThread;
     mutex renderMutex;
-    queue<IScreenObject*> renderQueue;
+    queue<ScreenObject*> renderQueue;
+    queue<short> inputQueue;
     static RenderManager* instance;
+    WINDOW* gameWindow;
     RenderManager();
     [[noreturn]] void renderLoop();
+    void queueInput(short s);
 public:
     static RenderManager* getInstance();
-    void enqueueRenderAction(IScreenObject* object);
+    void enqueueRenderAction(ScreenObject* object);
     void startRendering();
+    atomic<short> keyPressed = ERR;
+    short getFirstKeyPressed();
+    WINDOW *getWindow();
+
 };
+
 
 #endif

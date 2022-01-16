@@ -12,7 +12,6 @@ RenderManager::RenderManager()
     noecho();
     start_color();
     curs_set(0);
-    clear();
 
     init_pair(1,COLOR_BLACK,COLOR_BLACK);
     init_pair(2,COLOR_RED,COLOR_RED);
@@ -22,8 +21,7 @@ RenderManager::RenderManager()
     init_pair(6,COLOR_MAGENTA,COLOR_MAGENTA);
     init_pair(7,COLOR_CYAN,COLOR_CYAN);
     init_pair(8,COLOR_WHITE,COLOR_WHITE);
-
-    bkgd(COLOR_PAIR(1));
+    init_pair(9,COLOR_BLACK,COLOR_WHITE);
 }
 
 ///
@@ -39,6 +37,10 @@ void RenderManager::renderLoop()
 {
     while (true)
     {
+        short kp = getch();
+        if (kp != ERR)
+            inputQueue.push(kp);
+
         if (renderQueue.empty())
             continue;
 
@@ -47,7 +49,7 @@ void RenderManager::renderLoop()
             object->drawInternal();
         else object->eraseInternal();
         delete object;
-        refresh();
+        wrefresh(gameWindow);
         renderQueue.pop();
     }
 }
@@ -58,9 +60,34 @@ void RenderManager::startRendering()
     renderThread.detach();
 }
 
-void RenderManager::enqueueRenderAction(IScreenObject* object)
+void RenderManager::enqueueRenderAction(ScreenObject* object)
 {
     renderMutex.lock();
     renderQueue.push(object);
     renderMutex.unlock();
+}
+
+WINDOW *RenderManager::getWindow()
+{
+    return gameWindow;
+}
+
+void RenderManager::queueInput(short s)
+{
+    renderMutex.lock();
+    inputQueue.push(s);
+    renderMutex.unlock();
+}
+
+short RenderManager::getFirstKeyPressed()
+{
+    short temp = ERR;
+    renderMutex.lock();
+    if (!inputQueue.empty())
+    {
+        temp = inputQueue.front();
+        inputQueue.pop();
+    }
+    renderMutex.unlock();
+    return temp;
 }

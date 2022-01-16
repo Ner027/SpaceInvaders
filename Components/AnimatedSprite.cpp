@@ -28,3 +28,41 @@ AnimatedSprite::AnimatedSprite(const map<char, Sprite> &frames)
 {
     this->frames = frames;
 }
+
+void AnimatedSprite::moveBy(const Vector2 &df)
+{
+    for (auto& pair : frames)
+        pair.second.moveBy(df);
+    if (frames.contains(currentFrame))
+        frames.find(currentFrame)->second.draw();
+}
+
+void AnimatedSprite::moveTo(const Vector2 &nPos)
+{
+    for(auto& pair : frames)
+        pair.second.moveTo(nPos);
+    if (frames.contains(currentFrame))
+        frames.find(currentFrame)->second.draw();
+}
+
+Vector2 AnimatedSprite::getSize()
+{
+    if (!frames.contains(currentFrame))
+        return frames.begin()->second.getSize();
+    return frames.find(currentFrame)->second.getSize();
+}
+
+Vector2 AnimatedSprite::getPosition()
+{
+    if (!frames.contains(currentFrame))
+        return frames.begin()->second.getPosition();
+    return frames.find(currentFrame)->second.getPosition();
+}
+
+Sprite AnimatedSprite::getCurrentSprite()
+{
+    if (!frames.contains(currentFrame))
+        return frames.begin()->second;
+    return frames.find(currentFrame)->second;
+}
+

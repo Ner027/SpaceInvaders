@@ -25,3 +25,14 @@ short stos(const std::string& str)
     return (short) i;
 }
 
+
+template <typename T>
+T clamp(T t,T tMin, T tMax)
+{
+    if (t < tMin)
+        return tMin;
+    if (t > tMin)
+        return tMax;
+    return t;
+}
+

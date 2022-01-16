@@ -25,8 +25,15 @@ using namespace std::chrono;
             for (long i = 0;i < tickObjects.size();++i)
             {
                 auto tObj = tickObjects[i];
+                if (tObj->colliderComponent)
+                {
+                    for (auto c : registeredCollisionObjects)
+                        if (tObj->isColliding(c))
+                            tObj->colliderComponent->onCollision(tObj,c);
+                }
                 if (tObj->markedForDelete)
                 {
+                    unregisterForCollisions(tObj);
                     tickObjects.erase(tickObjects.begin() + i);
                     delete tObj;
                 }
@@ -34,7 +41,7 @@ using namespace std::chrono;
             }
         }
 
-        if (currentTick != TICK_CYCLE)
+        if (currentTick != TICK_CYCLE + 1)
             currentTick++;
         else currentTick = 0;
 
@@ -54,14 +61,31 @@ void GameClock::kill()
     delete instance;
 }
 
-void GameClock::registerObject(ITick* object)
+void GameClock::registerObject(GameObject* object)
 {
     gameMutex.lock();
-
-    for (ITick* obj : tickObjects)
-        if (obj->selfId == object->selfId)
-            return;
+    object->selfId = currentIdentifier++;
     tickObjects.push_back(object);
     gameMutex.unlock();
+}
+
+void GameClock::registerForCollisions(GameObject* tObj)
+{
+    for (auto o : registeredCollisionObjects)
+        if (o->selfId == tObj->selfId)
+            return;
+    registeredCollisionObjects.push_back(tObj);
+}
+
+void GameClock::unregisterForCollisions(GameObject *obj)
+{
+    for (auto it = registeredCollisionObjects.begin();it != registeredCollisionObjects.end();++it)
+    {
+        if ((*it)->selfId == obj->selfId)
+        {
+            registeredCollisionObjects.erase(it);
+            return;
+        }
+    }
 }
 
