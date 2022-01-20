@@ -2,8 +2,9 @@
 #include "../Components/Physics.h"
 #include "../Managers/GameClock.h"
 #include "../CursesWrapper/TextBox.h"
-#include "../Components/EnemyRow.h"
-#include <sstream>
+#include "../Components/EnemyController.h"
+#include "../Components/Enemy.h"
+
 void GameObject::tick(char curTick)
 {
     for (auto& pair : objectComponents)
@@ -115,7 +116,6 @@ void GameObject::addComponent(const Bullet& bl)
         return;
 
     auto compCopy = new Bullet(bl);
-    compCopy->parent = this;
     colliderComponent = compCopy;
     objectComponents.insert(pair<string,IComponent*>(bl.getName(),compCopy));
 
@@ -163,13 +163,33 @@ Vector2 GameObject::getPosition()
     return getRenderComp()->getSize();
 }
 
-void GameObject::addComponent(const EnemyRow &er)
+
+void GameObject::addComponent(const EnemyController &ec)
 {
-    if (objectComponents.contains(er.getName()))
+    if (objectComponents.contains(ec.getName()))
         return;
-    auto compCopy = new EnemyRow(er);
-    compCopy->parent = this;
-    objectComponents.insert(pair<string,IComponent*>(er.getName(),compCopy));
+    auto compCopy = new EnemyController(ec);
+    objectComponents.insert(pair<string,IComponent*>(ec.getName(),compCopy));
+
+}
+
+void GameObject::addComponent(const Enemy &en)
+{
+    if (objectComponents.contains(en.getName()))
+        return;
+    auto compCopy = new Enemy(en);
+    objectComponents.insert(pair<string,IComponent*>(en.getName(),compCopy));
+
+}
+
+IComponent* GameObject::getComponent(const string& compName)
+{
+    for (auto& pair : objectComponents)
+    {
+        if (pair.second->getName() == compName)
+            return pair.second;
+    }
+    return nullptr;
 }
 
 

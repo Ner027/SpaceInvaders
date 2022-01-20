@@ -93,6 +93,18 @@ Vector2 Vector2::divideBy(int factor) const
     return {x/factor,y/factor};
 }
 
+Vector2 Vector2::operator*(const Vector2 &r) const
+{
+    return {this->x * r.x,this->y * r.y};
+}
+
+Vector2 &Vector2::operator*=(const Vector2 &r)
+{
+    this->y *= r.y;
+    this->x *= r.x;
+    return *this;
+}
+
 
 
 

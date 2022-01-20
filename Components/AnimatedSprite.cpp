@@ -1,5 +1,5 @@
 #include "AnimatedSprite.h"
-
+#include "../Managers/AssetManager.h"
 void AnimatedSprite::execute(char curTick)
 {
     if (!frames.contains(curTick))
@@ -64,5 +64,10 @@ Sprite AnimatedSprite::getCurrentSprite()
     if (!frames.contains(currentFrame))
         return frames.begin()->second;
     return frames.find(currentFrame)->second;
+}
+
+AnimatedSprite::AnimatedSprite(const string& name)
+{
+    this->frames = AssetManager::getInstance()->getAnimation(name);
 }
 

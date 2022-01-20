@@ -11,8 +11,8 @@
 class ICollider;
 class Bullet;
 class Physics;
-class EnemyRow;
-
+class Enemy;
+class EnemyController;
 using namespace std;
 
 class GameObject
@@ -32,18 +32,20 @@ public:
     ~GameObject();
     static GameObject* Instantiate();
     void addComponent(const SpriteRenderer& sr);
+    void addComponent(const Enemy& en);
     void addComponent(const AnimatedSprite& as);
     void addComponent(const Physics& ph);
     void addComponent(const Bullet& bl);
-    void addComponent(const EnemyRow& er);
+    void addComponent(const EnemyController& ec);
     void moveBy(const Vector2& df);
     void moveTo(const Vector2& nPos);
     void setCollisionState(bool b);
     void setVelocity(float x,float y);
     bool isColliding(GameObject* go);
-    MovableComponent* getRenderComp();
+    [[nodiscard]] MovableComponent* getRenderComp();
     [[nodiscard]] Vector2 getPosition();
     [[nodiscard]] Vector2 getSize();
+    [[nodiscard]] IComponent* getComponent(const string& compName);
 };
 
 #endif

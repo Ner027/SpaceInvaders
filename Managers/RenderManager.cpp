@@ -1,11 +1,13 @@
 #include <ncurses.h>
 #include "RenderManager.h"
+#include "../Util/Constants.h"
 
 RenderManager* RenderManager::instance = nullptr;
 
 RenderManager::RenderManager()
 {
     initscr();
+
     raw();
     nodelay(stdscr, true);
     keypad(stdscr, true);
@@ -22,6 +24,11 @@ RenderManager::RenderManager()
     init_pair(7,COLOR_CYAN,COLOR_CYAN);
     init_pair(8,COLOR_WHITE,COLOR_WHITE);
     init_pair(9,COLOR_BLACK,COLOR_WHITE);
+
+    if (COLS < GW_X || LINES < GW_Y)
+        throw runtime_error("O terminal não tem o tamanho necessário!");
+
+
 }
 
 ///
@@ -49,13 +56,14 @@ void RenderManager::renderLoop()
             object->drawInternal();
         else object->eraseInternal();
         delete object;
-        wrefresh(gameWindow);
+        refresh();
         renderQueue.pop();
     }
 }
 
 void RenderManager::startRendering()
 {
+
     renderThread = thread(&RenderManager::renderLoop,this);
     renderThread.detach();
 }
@@ -67,10 +75,6 @@ void RenderManager::enqueueRenderAction(ScreenObject* object)
     renderMutex.unlock();
 }
 
-WINDOW *RenderManager::getWindow()
-{
-    return gameWindow;
-}
 
 void RenderManager::queueInput(short s)
 {

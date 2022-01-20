@@ -13,6 +13,8 @@ public:
     Vector2& operator +=(const Vector2& v);
     Vector2 operator +(const Vector2& r) const;
     Vector2 operator -(const Vector2& r) const;
+    Vector2 operator *(const Vector2& r) const;
+    Vector2& operator *=(const Vector2& r);
     friend bool operator ==(const Vector2& l,const Vector2& r);
     [[nodiscard]] int getX() const;
     [[nodiscard]] int getY() const;

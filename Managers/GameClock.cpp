@@ -28,8 +28,11 @@ using namespace std::chrono;
                 if (tObj->colliderComponent)
                 {
                     for (auto c : registeredCollisionObjects)
-                        if (tObj->isColliding(c))
+                    {
+                        if (tObj->isColliding(c) && c->selfId != tObj->selfId)
                             tObj->colliderComponent->onCollision(tObj,c);
+
+                    }
                 }
                 if (tObj->markedForDelete)
                 {
@@ -79,11 +82,11 @@ void GameClock::registerForCollisions(GameObject* tObj)
 
 void GameClock::unregisterForCollisions(GameObject *obj)
 {
-    for (auto it = registeredCollisionObjects.begin();it != registeredCollisionObjects.end();++it)
+    for (int i = 0; i < registeredCollisionObjects.size(); ++i)
     {
-        if ((*it)->selfId == obj->selfId)
+        if (obj->selfId == registeredCollisionObjects[i]->selfId)
         {
-            registeredCollisionObjects.erase(it);
+            registeredCollisionObjects.erase(registeredCollisionObjects.cbegin() + i);
             return;
         }
     }

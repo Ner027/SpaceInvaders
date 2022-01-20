@@ -1,5 +1,6 @@
 #include "Util.h"
 #include <stdexcept>
+#include <random>
 
 vector<string> string_split(string str,char ch)
 {
@@ -34,5 +35,13 @@ T clamp(T t,T tMin, T tMax)
     if (t > tMin)
         return tMax;
     return t;
+}
+
+int randomInt(int lowB, int highB)
+{
+    std::random_device randomDevice;
+    std::mt19937 gen(randomDevice());
+    std::uniform_int_distribution<> distribution(lowB,highB);
+    return distribution(gen);
 }
 

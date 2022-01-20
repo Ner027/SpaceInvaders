@@ -12,6 +12,7 @@ private:
     char currentFrame = -1;
 public:
     explicit AnimatedSprite(const map<char,Sprite>& frames);
+    explicit AnimatedSprite(const string& name);
     void execute(char curTick) override;
     void exitCleanly() override;
     void moveBy(const Vector2 &df) override;

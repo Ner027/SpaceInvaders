@@ -15,7 +15,6 @@ private:
     queue<ScreenObject*> renderQueue;
     queue<short> inputQueue;
     static RenderManager* instance;
-    WINDOW* gameWindow;
     RenderManager();
     [[noreturn]] void renderLoop();
     void queueInput(short s);
