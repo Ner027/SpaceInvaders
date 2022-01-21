@@ -15,3 +15,12 @@ Enemy::Enemy(int score)
 
 void Enemy::onAdd() {}
 
+void Enemy::onCollision(GameObject *gl, GameObject *gr)
+{
+    GameManager* gm = GameManager::getInstance();
+    gr->markedForDelete = true;
+    if (gr->getId() == gm->getPlayerId())
+        gm->endCurrentLevel();
+
+}
+

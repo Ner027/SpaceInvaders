@@ -19,6 +19,8 @@ struct EnemyContainer
 class EnemyAI : public IComponent
 {
 private:
+    int enemiesKilled = 0;
+    int enemyCount;
     vector<EnemyContainer> enemies;
     vector<string> enemyNames;
     Vector2 currentVelocity;

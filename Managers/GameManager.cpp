@@ -32,12 +32,12 @@ void GameManager::gameControllerLoop()
             case KEY_LEFT:
                 if (player->getPosition().getX() <= 1)
                     break;
-                player->moveBy(Vector2::Left().multiplyBy(3));
+                player->moveBy(Vector2::Left().multiplyBy(4));
                 break;
             case KEY_RIGHT:
                 if (player->getPosition().getX() + player->getSize().getX() >= GW_X)
                     break;
-                player->moveBy(Vector2::Right().multiplyBy(3));
+                player->moveBy(Vector2::Right().multiplyBy(4));
                 break;
             case KEY_UP:
                 shootBullet();
@@ -86,7 +86,7 @@ void GameManager::startCurrentLevel()
 
     enemyCtl = GameObject::Instantiate();
     vector<string> enemyNames;
-    currentLevel = 2;
+    currentLevel = 0;
     switch (currentLevel)
     {
         case 0:
@@ -175,6 +175,7 @@ void GameManager::gameOver()
 
 void GameManager::restartLevel()
 {
+    RenderManager::getInstance()->shouldClear=true;
     this->playerLives = 3;
     this->score = 0;
     startGame();
@@ -205,5 +206,11 @@ void GameManager::createSingleBarrier(const Vector2& position)
             go->moveTo({j,i});
         }
     }
+}
+
+void GameManager::winCurrentLevel()
+{
+    enemyCtl->markedForDelete = true;
+    RenderManager::getInstance()->shouldClear = true;
 }
 

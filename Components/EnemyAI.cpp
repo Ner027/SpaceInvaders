@@ -1,3 +1,4 @@
+#include <cmath>
 #include "EnemyAI.h"
 #include "../Util/Constants.h"
 #include "Enemy.h"
@@ -7,7 +8,10 @@
 
 void EnemyAI::execute(char curTick)
 {
-    queue<int> toRemove;
+
+    if (enemyCount == enemiesKilled)
+        gameManager->winCurrentLevel();
+
     Vector2 farRight = Vector2::Zero();
     Vector2 farLeft = Vector2::Right().multiplyBy(GW_X);
 
@@ -18,6 +22,8 @@ void EnemyAI::execute(char curTick)
 
         if (go->markedForDelete)
         {
+            enemiesKilled++;
+
             enemies.erase(it);
             isFree[gridPosition.getX() + (gridPosition.getY() * 9)] = true;
         }
@@ -38,10 +44,27 @@ void EnemyAI::execute(char curTick)
         }
 
     }
+    int speedMultiplier = 1;
+    if (enemiesKilled > enemyCount * 0.25)
+    {
+        if (enemiesKilled < enemyCount * 0.75)
+            speedMultiplier = 2;
+        else speedMultiplier = 3;
+    }
+
     if (farRight.getX() >= GW_X - 22)
-        currentVelocity = Vector2::Left();
+    {
+        for (const auto& go : enemies)
+            go.enemy->moveBy(Vector2::Down());
+        currentVelocity = Vector2::Left().multiplyBy(speedMultiplier);
+    }
     else if (farLeft.getX() <= 0)
-        currentVelocity = Vector2::Right();
+    {
+        for (const auto& go : enemies)
+            go.enemy->moveBy(Vector2::Down());
+        currentVelocity = Vector2::Right().multiplyBy(speedMultiplier);
+    }
+
 }
 
 void EnemyAI::exitCleanly()
@@ -76,6 +99,7 @@ void EnemyAI::onAdd()
             enemies.push_back(EnemyContainer(enemy,{j,i}));
         }
     }
+    enemyCount = (int) enemies.size();
 }
 
 bool EnemyAI::canShoot(const Vector2& position)
@@ -87,7 +111,7 @@ bool EnemyAI::canShoot(const Vector2& position)
         return false;
 
     int ri = randomInt(0,100);
-    if (ri > 0)
+    if (ri >= 0)
         return false;
 
     for (int i = position.getY() + 1; i < rows; ++i)

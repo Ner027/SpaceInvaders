@@ -123,6 +123,7 @@ void GameObject::addComponent(const Enemy &en)
     if (objectComponents.contains(en.getName()))
         return;
     auto compCopy = new Enemy(en);
+    colliderComponent = compCopy;
     objectComponents.insert(pair<string,IComponent*>(en.getName(),compCopy));
 
 }

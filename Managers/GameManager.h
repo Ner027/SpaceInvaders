@@ -34,6 +34,7 @@ public:
     void startGame();
     void addScore(int i);
     void endCurrentLevel();
+    void winCurrentLevel();
     void removeLife();
     [[nodiscard]] long getPlayerId() const;
 

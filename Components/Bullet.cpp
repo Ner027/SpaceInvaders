@@ -17,8 +17,12 @@ void Bullet::onCollision(GameObject *gl, GameObject *gr)
     if (gr->getId() == parent->getId())
         return;
 
+    if (gl->getComponent("Enemy") && gr->getComponent("Enemy"))
+        return;
+
     auto gm = GameManager::getInstance();
-    if (gr->getId() == gm->getPlayerId())
+    long playerId = gm->getPlayerId();
+    if (gr->getId() == playerId)
         gm->endCurrentLevel();
 
     gl->markedForDelete = true;

@@ -6,15 +6,16 @@
 #include "../Game/GameObject.h"
 #include <vector>
 
-class Enemy : public IComponent
+class Enemy : public IComponent,public ICollider
 {
 private:
     int score = 0;
 public:
-    Enemy(int score);
+    explicit Enemy(int score);
     void exitCleanly() override;
     void execute(char curTick) override;
     void onAdd() override;
+    void onCollision(GameObject *gl, GameObject *gr) override;
     [[nodiscard]] std::string getName() const override {return "Enemy";}
 
 };
