@@ -3,6 +3,7 @@
 
 #include "IComponent.h"
 #include "../CursesWrapper/Vector2.h"
+#include "../CursesWrapper/Sprite.h"
 
 class MovableComponent : public IComponent
 {

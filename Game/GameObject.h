@@ -8,6 +8,7 @@
 #include "../Components/ICollider.h"
 #include "../Components/Bullet.h"
 
+class ICollisionTester;
 class ICollider;
 class Bullet;
 class Physics;
@@ -16,15 +17,20 @@ class EnemyAI;
 
 using namespace std;
 
+enum CollisionTester
+{
+    BETTER_BOUNDING_BOX,
+};
+
 class GameObject
 {
 private:
     friend class GameClock;
     long selfId = 0;
-    bool collisionsEnabled = false;
     map<string,IComponent*> objectComponents;
     MovableComponent* cachedRenderComp = nullptr;
     ICollider* colliderComponent = nullptr;
+    ICollisionTester* collisionTester = nullptr;
     void insertComponent(IComponent* ic);
     void tick(char curTick);
     GameObject();
@@ -40,8 +46,7 @@ public:
     void addComponent(const EnemyAI& en);
     void moveBy(const Vector2& df);
     void moveTo(const Vector2& nPos);
-    void setCollisionState(bool b);
-    void setVelocity(float x,float y);
+    void setCollisionTester(CollisionTester tester);
     bool isColliding(GameObject* go);
     [[nodiscard]] MovableComponent* getRenderComp();
     [[nodiscard]] Vector2 getPosition();

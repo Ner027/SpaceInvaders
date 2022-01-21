@@ -22,9 +22,10 @@ private:
     vector<EnemyContainer> enemies;
     vector<string> enemyNames;
     Vector2 currentVelocity;
+    Vector2 lastEnemy = Vector2(-1,-1);
     GameManager* gameManager;
     int rows = 0;
-    bool isFree[27];
+    bool isFree[27]{false};
     bool canShoot(const Vector2& position);
     void spawnBullet(const Vector2& position,GameObject* parent);
 public:

@@ -1,9 +1,11 @@
 #include "GameObject.h"
 #include "../Components/Physics.h"
 #include "../Managers/GameClock.h"
-#include "../CursesWrapper/TextBox.h"
 #include "../Components/Enemy.h"
 #include "../Components/EnemyAI.h"
+#include "../Components/ICollisionTester.h"
+#include "../Components/BetterBoxCollider.h"
+
 
 void GameObject::tick(char curTick)
 {
@@ -38,6 +40,8 @@ GameObject::~GameObject()
         pair.second->exitCleanly();
         delete pair.second;
     }
+    GameClock::getInstance()->unregisterForCollisions(this);
+    delete collisionTester;
 }
 
 void GameObject::addComponent(const AnimatedSprite& as)
@@ -85,26 +89,6 @@ void GameObject::addComponent(const Physics& ph)
     objectComponents.insert(pair<string,IComponent*>(ph.getName(),compCopy));
 }
 
-void GameObject::setVelocity(float x,float y)
-{
-    if (!objectComponents.contains("Physics"))
-        throw runtime_error("O objecto não tem um componente de fisicas!");
-
-    dynamic_cast<Physics*>(objectComponents["Physics"])->setVelocity(x,y);
-}
-
-void GameObject::setCollisionState(bool b)
-{
-    if (b == collisionsEnabled)
-        return;
-    GameClock* gcInst = GameClock::getInstance();
-    if (b)
-        gcInst->registerForCollisions(this);
-    else gcInst->unregisterForCollisions(this);
-    collisionsEnabled = b;
-}
-
-
 void GameObject::addComponent(const Bullet& bl)
 {
     if (objectComponents.contains(bl.getName()))
@@ -118,34 +102,9 @@ void GameObject::addComponent(const Bullet& bl)
 
 bool GameObject::isColliding(GameObject *go)
 {
-    Vector2 selfPos = this->getPosition();
-    Vector2 otherPos = go->getPosition();
-    Vector2 maxSelf = selfPos + this->getSize();
-    Vector2 maxOther = otherPos + go->getSize();
-
-    if(selfPos.getY() > maxOther.getY())
+    if (!collisionTester)
         return false;
-    if (selfPos.getX() > maxOther.getX())
-        return false;
-    if (maxSelf.getX() < otherPos.getX())
-        return false;
-    if (maxSelf.getY() < otherPos.getY())
-        return false;
-
-
-    Vector2 testPos = otherPos-selfPos-Vector2::Up();
-    testPos.absolute();
-
-    auto spr = go->getRenderComp()->getCurrentSprite();
-    auto pMatrix = spr.getPixelMatrix();
-    auto vSize = spr.getSize().divideBy(2);
-    short color = pMatrix[(testPos.getY() * (vSize.getX())) + testPos.getX()];
-
-    if (color == 1)
-        return false;
-
-    return true;
-
+    return collisionTester->testCollision(this,go);
 }
 
 Vector2 GameObject::getPosition()
@@ -194,6 +153,14 @@ void GameObject::insertComponent(IComponent* ic)
 long GameObject::getId() const
 {
     return selfId;
+}
+
+void GameObject::setCollisionTester(CollisionTester tester)
+{
+    if (tester == BETTER_BOUNDING_BOX)
+        collisionTester = new BetterBoxCollider();
+
+    GameClock::getInstance()->registerForCollisions(this);
 }
 
 

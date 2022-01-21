@@ -3,8 +3,9 @@
 #include "../Managers/RenderManager.h"
 
 
-TextBox::TextBox(const string &str,const Vector2& pos) : ScreenObject(pos,{(int)str.length(),1})
+TextBox::TextBox(const string &str,const Vector2& pos,short colorPair = 9) : ScreenObject(pos,{(int)str.length(),1})
 {
+    this->colorPair = colorPair;
     text = str;
 }
 
@@ -25,12 +26,16 @@ void TextBox::eraseInternal()
 
 void TextBox::moveTo(const Vector2 &nPos)
 {
-
+    this->erase();
+    this->localPosition = nPos;
+    this->draw();
 }
 
 void TextBox::moveBy(const Vector2 &df)
 {
-
+    this->erase();
+    this->localPosition += df;
+    this->draw();
 }
 
 void TextBox::erase()
@@ -46,3 +51,12 @@ void TextBox::draw()
     auto copy = new TextBox(*this);
     RenderManager::getInstance()->enqueueRenderAction(copy);
 }
+
+void TextBox::changeText(const string& newText)
+{
+    this->erase();
+    this->text = newText;
+    this->draw();
+}
+
+TextBox::TextBox() : ScreenObject(Vector2::Zero(),Vector2::Zero()) {}

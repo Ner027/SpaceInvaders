@@ -17,14 +17,12 @@ private:
     static RenderManager* instance;
     RenderManager();
     [[noreturn]] void renderLoop();
-    void queueInput(short s);
 public:
     static RenderManager* getInstance();
     void enqueueRenderAction(ScreenObject* object);
     void startRendering();
-    atomic<short> keyPressed = ERR;
     short getFirstKeyPressed();
-    WINDOW *getWindow();
+    atomic<bool> shouldClear;
 
 };
 

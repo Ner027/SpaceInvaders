@@ -4,6 +4,7 @@
 #include "IComponent.h"
 #include "ICollider.h"
 #include <atomic>
+#include "../Managers/GameManager.h"
 
 using namespace std;
 class Bullet : public IComponent , public ICollider

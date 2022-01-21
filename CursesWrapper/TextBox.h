@@ -9,14 +9,17 @@ class TextBox : public ScreenObject
 {
 private:
     string text;
+    short colorPair = 9;
     void drawInternal() override;
     void eraseInternal() override;
 public:
-    explicit TextBox(const string& str,const Vector2& pos);
+    TextBox(const string& str,const Vector2& pos,short colorPair);
+    TextBox();
     void moveTo(const Vector2 &nPos) override;
     void moveBy(const Vector2 &df) override;
     void erase() override;
     void draw() override;
+    void changeText(const string& newText);
 };
 
 

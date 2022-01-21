@@ -3,6 +3,7 @@
 #include "Enemy.h"
 #include "Physics.h"
 #include "../Util/Util.h"
+#include "../Managers/AssetManager.h"
 
 void EnemyAI::execute(char curTick)
 {
@@ -18,7 +19,7 @@ void EnemyAI::execute(char curTick)
         if (go->markedForDelete)
         {
             enemies.erase(it);
-            isFree[gridPosition.getX() + (gridPosition.getY() * 9)];
+            isFree[gridPosition.getX() + (gridPosition.getY() * 9)] = true;
         }
         else ++it;
 
@@ -33,6 +34,7 @@ void EnemyAI::execute(char curTick)
         {
             Vector2 spawnPos(go->getPosition() + Vector2(go->getSize().getX() / 2,go->getSize().getY() + 1));
             spawnBullet(spawnPos,go);
+            lastEnemy = gridPosition;
         }
 
     }
@@ -44,6 +46,8 @@ void EnemyAI::execute(char curTick)
 
 void EnemyAI::exitCleanly()
 {
+    for (auto& go : enemies)
+        go.enemy->markedForDelete = true;
 }
 
 EnemyAI::EnemyAI(const vector<string>& enemyNames) : currentVelocity(Vector2::Right())
@@ -54,6 +58,7 @@ EnemyAI::EnemyAI(const vector<string>& enemyNames) : currentVelocity(Vector2::Ri
 
 void EnemyAI::onAdd()
 {
+    AssetManager* am = AssetManager::getInstance();
     rows = (int) enemyNames.size();
     for (int i = 0; i < rows; ++i)
     {
@@ -65,8 +70,9 @@ void EnemyAI::onAdd()
             auto enemy = GameObject::Instantiate();
             enemy->addComponent(enemySpriteRenderer);
             enemy->moveTo(newPosition);
-            enemy->setCollisionState(true);
-            Enemy en(0);
+            Enemy en(am->getEnemyScore(enemyNames[i]));
+            enemy->addComponent(en);
+            enemy->setCollisionTester(BETTER_BOUNDING_BOX);
             enemies.push_back(EnemyContainer(enemy,{j,i}));
         }
     }
@@ -77,7 +83,21 @@ bool EnemyAI::canShoot(const Vector2& position)
     if (!gameManager->enemyCanFire)
         return false;
 
-    return isFree[position.getX() + (position.getY() * 9)];
+    if (position == lastEnemy)
+        return false;
+
+    int ri = randomInt(0,100);
+    if (ri > 0)
+        return false;
+
+    for (int i = position.getY() + 1; i < rows; ++i)
+    {
+        if (!isFree[position.getX() + (i * 9) ])
+            return false;
+    }
+
+    return true;
+
 }
 
 void EnemyAI::spawnBullet(const Vector2 &position,GameObject* parent)
@@ -90,5 +110,6 @@ void EnemyAI::spawnBullet(const Vector2 &position,GameObject* parent)
     bulletObject->addComponent(bulletPhysics);
     Bullet bullet(parent);
     bulletObject->addComponent(bullet);
+    bulletObject->setCollisionTester(BETTER_BOUNDING_BOX);
     gameManager->enemyCanFire = false;
 }

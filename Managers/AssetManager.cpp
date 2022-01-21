@@ -148,3 +148,29 @@ bool AssetManager::getConfig(const string& configName)
 
 }
 
+int AssetManager::getEnemyScore(const string &enemyName)
+{
+    if (enemyScoreBuff.contains(enemyName))
+        return enemyScoreBuff[enemyName];
+
+    stringstream ss;
+    ss << ASSET_PATH << "enemyRatios.txt";
+    ifstream file = tryOpenFile(ss.str());
+    string buffer;
+
+    while(!file.eof())
+    {
+        getline(file,buffer);
+        auto spl = string_split(buffer,':');
+        if (spl.size() != 2)
+            continue;
+        enemyScoreBuff.insert(pair<string,int>(spl[0], stoi(spl[1])));
+    }
+
+    if (!enemyScoreBuff.contains(enemyName))
+        throw runtime_error("Inimigo não encontrado!");
+
+    return enemyScoreBuff[enemyName];
+
+}
+

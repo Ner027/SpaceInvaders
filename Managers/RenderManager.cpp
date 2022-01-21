@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include "RenderManager.h"
 #include "../Util/Constants.h"
+#include <chrono>
 
 RenderManager* RenderManager::instance = nullptr;
 
@@ -23,7 +24,7 @@ RenderManager::RenderManager()
     init_pair(6,COLOR_MAGENTA,COLOR_MAGENTA);
     init_pair(7,COLOR_CYAN,COLOR_CYAN);
     init_pair(8,COLOR_WHITE,COLOR_WHITE);
-    init_pair(9,COLOR_BLACK,COLOR_WHITE);
+    init_pair(9,COLOR_WHITE,COLOR_BLACK);
 
     if (COLS < GW_X || LINES < GW_Y)
         throw runtime_error("O terminal não tem o tamanho necessário!");
@@ -44,6 +45,11 @@ void RenderManager::renderLoop()
 {
     while (true)
     {
+        if (shouldClear)
+        {
+            clear();
+            shouldClear = false;
+        }
         short kp = getch();
         if (kp != ERR)
             inputQueue.push(kp);
@@ -63,7 +69,6 @@ void RenderManager::renderLoop()
 
 void RenderManager::startRendering()
 {
-
     renderThread = thread(&RenderManager::renderLoop,this);
     renderThread.detach();
 }
@@ -72,14 +77,6 @@ void RenderManager::enqueueRenderAction(ScreenObject* object)
 {
     renderMutex.lock();
     renderQueue.push(object);
-    renderMutex.unlock();
-}
-
-
-void RenderManager::queueInput(short s)
-{
-    renderMutex.lock();
-    inputQueue.push(s);
     renderMutex.unlock();
 }
 

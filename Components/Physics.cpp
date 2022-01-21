@@ -17,7 +17,7 @@ void Physics::execute(char curTick)
     parentObject->getRenderComp()->moveBy(dl);
     Vector2 pos = parentObject->getPosition();
     Vector2 upperBound = parentObject->getSize() + parentObject->getPosition();
-    if(pos.getX() < 0 || upperBound.getX() >= GW_X || pos.getY() < 0 || upperBound.getY() >= GW_Y)
+    if(pos.getX() < 0 || upperBound.getX() >= GW_X - 1 || pos.getY() < 0 || upperBound.getY() >= GW_Y - 1)
         parentObject->markedForDelete = true;
 }
 

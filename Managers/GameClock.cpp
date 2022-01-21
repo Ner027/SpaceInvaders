@@ -29,7 +29,7 @@ using namespace std::chrono;
                 {
                     for (auto c : registeredCollisionObjects)
                     {
-                        if (tObj->isColliding(c) && c->selfId != tObj->selfId)
+                        if (c->isColliding(tObj) && c->selfId != tObj->selfId)
                             tObj->colliderComponent->onCollision(tObj,c);
 
                     }
@@ -74,10 +74,12 @@ void GameClock::registerObject(GameObject* object)
 
 void GameClock::registerForCollisions(GameObject* tObj)
 {
+    gameMutex.lock();
     for (auto o : registeredCollisionObjects)
         if (o->selfId == tObj->selfId)
             return;
     registeredCollisionObjects.push_back(tObj);
+    gameMutex.unlock();
 }
 
 void GameClock::unregisterForCollisions(GameObject *obj)
@@ -91,4 +93,3 @@ void GameClock::unregisterForCollisions(GameObject *obj)
         }
     }
 }
-
