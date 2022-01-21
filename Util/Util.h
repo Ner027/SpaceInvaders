@@ -5,8 +5,10 @@
 
 using namespace std;
 vector<string> string_split(string str,char ch);
-short stos(const std::string& str);
+short stos(const string& str);
 int randomInt(int lowB,int highB);
+string string_toLower(const string& string);
+bool stob(const string& str);
 template <typename T>
 T clamp(T t,T tMin,T tMax);
 

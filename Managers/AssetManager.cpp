@@ -98,7 +98,7 @@ void AssetManager::tryLoadAnimation(const string &animName)
         tryLoadSprite(it.path().string(), true);
         auto spriteName = string_split(it.path().string(),'/').back();
         spriteName = spriteName.substr(0,spriteName.size() - 4);
-        Sprite spr(Vector2::Zero(),spriteName);
+        Sprite spr(spriteName);
         spriteName = spriteName.substr(spriteName.size() - 2,spriteName.size() - 1);
         char c = (char) stos(spriteName);
         temp.insert(pair<char,Sprite>(c,spr));
@@ -117,5 +117,34 @@ ifstream AssetManager::tryOpenFile(const string& fileName)
         throw runtime_error("Não foi possivel abrir o ficheiro!");
 
     return file;
+}
+
+bool AssetManager::getConfig(const string& configName)
+{
+    if (gameConfigs.contains(configName))
+        return gameConfigs[configName];
+
+    stringstream ss;
+    ss << ASSET_PATH << "config.txt";
+    ifstream file = tryOpenFile(ss.str());
+
+    string buffer;
+
+    while(!file.eof())
+    {
+        getline(file,buffer);
+        vector<string> spl = string_split(buffer,':');
+        if (spl.size() != 2)
+            continue;
+        gameConfigs.insert(pair<string,bool>(spl[0], stob(spl[1])));
+    }
+
+    file.close();
+
+    if (gameConfigs.contains(configName))
+        return gameConfigs[configName];
+
+    throw invalid_argument("Não foi encontrada uma configuração com o nome " + configName);
+
 }
 

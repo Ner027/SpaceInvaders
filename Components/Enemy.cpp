@@ -1,19 +1,17 @@
 #include "Enemy.h"
-
-Enemy::Enemy()
-{
-}
+#include "../Managers/GameManager.h"
 
 void Enemy::exitCleanly()
 {
+    GameManager::getInstance()->addScore(this->score);
 }
 
-void Enemy::execute(char curTick)
+void Enemy::execute(char curTick) {}
+
+Enemy::Enemy(int score)
 {
-
+    this->score = score;
 }
 
-std::string Enemy::getName() const
-{
-    return "Enemy";
-}
+void Enemy::onAdd() {}
+

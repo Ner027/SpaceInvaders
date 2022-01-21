@@ -1,31 +1,30 @@
 #include "Bullet.h"
 #include "../Game/GameObject.h"
 #include "../Components/Enemy.h"
-#include "../Util/Constants.h"
+#include "../Managers/GameManager.h"
 
-void Bullet::execute(char curTick)
-{
-    if (parent->getPosition().getY() <= 0)
-        parent->markedForDelete = true;
-    if (parent->getPosition().getY() >= GW_Y)
-        parent->markedForDelete = true;
-
-}
+void Bullet::execute(char curTick) {}
 
 void Bullet::exitCleanly()
 {
-    *isAlive = false;
+    GameManager* gm = GameManager::getInstance();
+    if (parent->getId() == gm->getPlayerId())
+        gm->playerCanFire = true;
+    else gm->enemyCanFire = true;
 }
 
 void Bullet::onCollision(GameObject *gl, GameObject *gr)
 {
+    if (gl->getId() == parent->getId())
+        return;
     gl->markedForDelete = true;
     gr->markedForDelete = true;
 }
 
-Bullet::Bullet(bool *isAlive, GameObject *parent)
+void Bullet::onAdd() {}
+
+Bullet::Bullet(GameObject* parent)
 {
-    this->isAlive = isAlive;
     this->parent = parent;
 }
 

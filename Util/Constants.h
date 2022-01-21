@@ -4,7 +4,8 @@
 #define ASSET_PATH "/home/nero/Desktop/Assets/"
 #define TICK_TIME_US 50000
 #define TICK_CYCLE 20
-#define GW_X 314
-#define GW_Y 70
+#define GW_X 315
+#define GW_Y 65
+#define BULLET_SPEED 30
 
 #endif

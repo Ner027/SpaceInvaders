@@ -3,17 +3,19 @@
 
 #include "IComponent.h"
 #include "ICollider.h"
+#include <atomic>
 
+using namespace std;
 class Bullet : public IComponent , public ICollider
 {
 private:
-    bool* isAlive;
     GameObject* parent;
 public:
-    explicit Bullet(bool* isAlive,GameObject* parent);
+    explicit Bullet(GameObject* parent);
     void exitCleanly() override;
     void execute(char curTick) override;
     void onCollision(GameObject *gl, GameObject *gr) override;
+    void onAdd() override;
     [[nodiscard]] std::string getName() const override{return "Bullet";}
 };
 

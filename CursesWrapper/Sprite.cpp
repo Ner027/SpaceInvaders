@@ -43,7 +43,7 @@ void Sprite::drawInternal()
     }
 }
 
-Sprite::Sprite(const Vector2 &position, const std::string& name) : ScreenObject(position,{0,0}), internalSize(0,0)
+Sprite::Sprite(const std::string& name) : ScreenObject({0,0},{0,0}), internalSize(0,0)
 {
     this->spriteName = name;
     auto sCont = AssetManager::getInstance()->getSprite(name);

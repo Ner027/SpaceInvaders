@@ -4,15 +4,18 @@
 
 #include "IComponent.h"
 #include "../Game/GameObject.h"
+#include <vector>
 
 class Enemy : public IComponent
 {
+private:
+    int score = 0;
 public:
-    bool markedForKill = false;
-    Enemy();
+    Enemy(int score);
     void exitCleanly() override;
     void execute(char curTick) override;
-    [[nodiscard]] std::string getName() const override;
+    void onAdd() override;
+    [[nodiscard]] std::string getName() const override {return "Enemy";}
 
 };
 

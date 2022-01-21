@@ -13,7 +13,7 @@ private:
     void eraseInternal() override;
     void drawInternal() override;
 public:
-    Sprite(const Vector2& position,const std::string& name);
+    explicit Sprite(const std::string& name);
     Sprite(const Sprite& og);
     void draw() override;
     void erase() override;

@@ -1,12 +1,9 @@
 #include "SpriteRenderer.h"
+#include "../Managers/AssetManager.h"
 
 void SpriteRenderer::execute(char curTick)
 {
 
-}
-
-SpriteRenderer::SpriteRenderer(const Sprite &sprite) : spr(sprite)
-{
 }
 
 void SpriteRenderer::draw()
@@ -43,5 +40,12 @@ Sprite SpriteRenderer::getCurrentSprite()
 {
     return spr;
 }
+
+void SpriteRenderer::onAdd()
+{
+
+}
+
+SpriteRenderer::SpriteRenderer(const string &spriteName) : spr(spriteName) {}
 
 

@@ -12,7 +12,8 @@ class ICollider;
 class Bullet;
 class Physics;
 class Enemy;
-class EnemyController;
+class EnemyAI;
+
 using namespace std;
 
 class GameObject
@@ -23,9 +24,9 @@ private:
     bool collisionsEnabled = false;
     map<string,IComponent*> objectComponents;
     MovableComponent* cachedRenderComp = nullptr;
-    virtual void tick(char curTick);
     ICollider* colliderComponent = nullptr;
-    void triggerCollider(GameObject* go);
+    void insertComponent(IComponent* ic);
+    void tick(char curTick);
     GameObject();
 public:
     std::atomic<bool> markedForDelete = false;
@@ -36,7 +37,7 @@ public:
     void addComponent(const AnimatedSprite& as);
     void addComponent(const Physics& ph);
     void addComponent(const Bullet& bl);
-    void addComponent(const EnemyController& ec);
+    void addComponent(const EnemyAI& en);
     void moveBy(const Vector2& df);
     void moveTo(const Vector2& nPos);
     void setCollisionState(bool b);
@@ -46,6 +47,7 @@ public:
     [[nodiscard]] Vector2 getPosition();
     [[nodiscard]] Vector2 getSize();
     [[nodiscard]] IComponent* getComponent(const string& compName);
+    [[nodiscard]] long getId() const;
 };
 
 #endif

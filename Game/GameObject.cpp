@@ -2,8 +2,8 @@
 #include "../Components/Physics.h"
 #include "../Managers/GameClock.h"
 #include "../CursesWrapper/TextBox.h"
-#include "../Components/EnemyController.h"
 #include "../Components/Enemy.h"
+#include "../Components/EnemyAI.h"
 
 void GameObject::tick(char curTick)
 {
@@ -104,11 +104,6 @@ void GameObject::setCollisionState(bool b)
     collisionsEnabled = b;
 }
 
-void GameObject::triggerCollider(GameObject *go)
-{
-    if (colliderComponent)
-        colliderComponent->onCollision(this,go);
-}
 
 void GameObject::addComponent(const Bullet& bl)
 {
@@ -164,15 +159,6 @@ Vector2 GameObject::getPosition()
 }
 
 
-void GameObject::addComponent(const EnemyController &ec)
-{
-    if (objectComponents.contains(ec.getName()))
-        return;
-    auto compCopy = new EnemyController(ec);
-    objectComponents.insert(pair<string,IComponent*>(ec.getName(),compCopy));
-
-}
-
 void GameObject::addComponent(const Enemy &en)
 {
     if (objectComponents.contains(en.getName()))
@@ -190,6 +176,24 @@ IComponent* GameObject::getComponent(const string& compName)
             return pair.second;
     }
     return nullptr;
+}
+
+void GameObject::addComponent(const EnemyAI &en)
+{
+    if (objectComponents.contains(en.getName()))
+        return;
+    insertComponent(new EnemyAI(en));
+}
+
+void GameObject::insertComponent(IComponent* ic)
+{
+    objectComponents.insert(pair<string,IComponent*>(ic->getName(),ic));
+    ic->onAdd();
+}
+
+long GameObject::getId() const
+{
+    return selfId;
 }
 
 

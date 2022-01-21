@@ -12,6 +12,7 @@ public:
     virtual void moveTo(const Vector2& nPos) = 0;
     void execute(char curTick) override = 0;
     void exitCleanly() override = 0;
+    virtual void onAdd() override = 0;
     [[nodiscard]] std::string getName() const override = 0;
     [[nodiscard]] virtual Vector2 getSize() = 0;
     [[nodiscard]] virtual Vector2 getPosition() = 0;

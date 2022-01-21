@@ -16,6 +16,7 @@ public:
     Physics(GameObject* go,float x,float y);
     void exitCleanly() override;
     void execute(char curTick) override;
+    void onAdd() override;
     [[nodiscard]] std::string getName() const override{return "Physics";}
     void setVelocity(float velX,float velY);
 };

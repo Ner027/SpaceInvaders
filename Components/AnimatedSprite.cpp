@@ -2,8 +2,12 @@
 #include "../Managers/AssetManager.h"
 void AnimatedSprite::execute(char curTick)
 {
+    if (!animationsEnabled && currentFrame != -1)
+        return;
+
     if (!frames.contains(curTick))
         return;
+
     if (currentFrame == -1)
     {
         currentFrame = curTick;
@@ -15,18 +19,12 @@ void AnimatedSprite::execute(char curTick)
         frames.find(curTick)->second.draw();
         currentFrame = curTick;
     }
-
 }
 
 void AnimatedSprite::exitCleanly()
 {
     if (frames.contains(currentFrame))
         frames.find(currentFrame)->second.erase();
-}
-
-AnimatedSprite::AnimatedSprite(const map<char, Sprite> &frames)
-{
-    this->frames = frames;
 }
 
 void AnimatedSprite::moveBy(const Vector2 &df)
@@ -68,6 +66,13 @@ Sprite AnimatedSprite::getCurrentSprite()
 
 AnimatedSprite::AnimatedSprite(const string& name)
 {
-    this->frames = AssetManager::getInstance()->getAnimation(name);
+    auto assetManager = AssetManager::getInstance();
+    this->frames = assetManager->getAnimation(name);
+    this->animationsEnabled = assetManager->getConfig("animationsEnabled");
+}
+
+void AnimatedSprite::onAdd()
+{
+
 }
 
