@@ -29,8 +29,7 @@ void GameObject::addComponent(const SpriteRenderer& sr)
         return;
     auto copy = new SpriteRenderer(sr);
     copy->draw();
-    objectComponents.insert(pair<string,IComponent*>(sr.getName(),copy));
-
+    insertComponent(copy);
 }
 
 GameObject::~GameObject()
@@ -49,7 +48,7 @@ void GameObject::addComponent(const AnimatedSprite& as)
     if (objectComponents.contains(as.getName()))
         return;
     auto compCopy = new AnimatedSprite(as);
-    objectComponents.insert(pair<string,IComponent*>(as.getName(),compCopy));
+    insertComponent(compCopy);
 }
 
 void GameObject::moveBy(const Vector2 & df)
@@ -85,8 +84,8 @@ void GameObject::addComponent(const Physics& ph)
 {
     if (objectComponents.contains(ph.getName()))
         return;
-    auto* compCopy = new Physics(this,ph.velX,ph.velY);
-    objectComponents.insert(pair<string,IComponent*>(ph.getName(),compCopy));
+    auto* compCopy = new Physics(ph);
+    insertComponent(compCopy);
 }
 
 void GameObject::addComponent(const Bullet& bl)
@@ -96,7 +95,7 @@ void GameObject::addComponent(const Bullet& bl)
 
     auto compCopy = new Bullet(bl);
     colliderComponent = compCopy;
-    objectComponents.insert(pair<string,IComponent*>(bl.getName(),compCopy));
+    insertComponent(compCopy);
 
 }
 
@@ -124,8 +123,7 @@ void GameObject::addComponent(const Enemy &en)
         return;
     auto compCopy = new Enemy(en);
     colliderComponent = compCopy;
-    objectComponents.insert(pair<string,IComponent*>(en.getName(),compCopy));
-
+    insertComponent(compCopy);
 }
 
 IComponent* GameObject::getComponent(const string& compName)
@@ -162,6 +160,15 @@ void GameObject::setCollisionTester(CollisionTester tester)
         collisionTester = new BetterBoxCollider();
 
     GameClock::getInstance()->registerForCollisions(this);
+}
+
+void GameObject::setVelocity(float x, float y,int multiplier = 1)
+{
+    auto comp = getComponent("Physics");
+    if (comp == nullptr)
+        throw runtime_error("O objecto não tem um componente de fisicas");
+    auto pComp = dynamic_cast<Physics*>(comp);
+    pComp->setVelocity(x,y,multiplier);
 }
 
 

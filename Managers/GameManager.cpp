@@ -4,13 +4,20 @@
 #include "../Components/Physics.h"
 #include "../CursesWrapper/Rect.h"
 #include "../Util/Constants.h"
+#include "GameClock.h"
 #include "RenderManager.h"
+#include "AssetManager.h"
+#include "../Util/Util.h"
 
 GameManager* GameManager::instance = nullptr;
 
 GameManager::GameManager()
 {
-
+    playerShip = new ShipContainer(AssetManager::getInstance()->getSpaceShips().front());
+    Rect rect({0,GW_Y},{(GW_X / 2),1},8);
+    rect.draw();
+    Rect rect2({GW_X + 1,0},{1,GW_Y},8);
+    rect2.draw();
 }
 
 GameManager *GameManager::getInstance()
@@ -30,14 +37,10 @@ void GameManager::gameControllerLoop()
         switch (kp)
         {
             case KEY_LEFT:
-                if (player->getPosition().getX() <= 1)
-                    break;
-                player->moveBy(Vector2::Left().multiplyBy(4));
+                player->setVelocity(-playerShip->velocity,0,2);
                 break;
             case KEY_RIGHT:
-                if (player->getPosition().getX() + player->getSize().getX() >= GW_X)
-                    break;
-                player->moveBy(Vector2::Right().multiplyBy(4));
+                player->setVelocity(playerShip->velocity,0,2);
                 break;
             case KEY_UP:
                 shootBullet();
@@ -53,6 +56,7 @@ void GameManager::gameControllerLoop()
 
 void GameManager::startGame()
 {
+    shipSelectionMenu();
     startCurrentLevel();
     shouldRun = true;
     gameControllerLoop();
@@ -69,15 +73,12 @@ void GameManager::addScore(int i)
 void GameManager::endCurrentLevel()
 {
     shouldRun = false;
-    RenderManager::getInstance()->shouldClear = true;
+    GameClock::getInstance()->killAll();
 }
 
 void GameManager::startCurrentLevel()
 {
-    Rect rect({0,GW_Y},{(GW_X / 2) + 1,1},8);
-    rect.draw();
-    Rect rect2({GW_X + 1,0},{1,GW_Y},8);
-    rect2.draw();
+
     scoreBox.changeText("Score: 0");
     scoreBox.moveTo({5,GW_Y + 2});
 
@@ -86,17 +87,17 @@ void GameManager::startCurrentLevel()
 
     enemyCtl = GameObject::Instantiate();
     vector<string> enemyNames;
-    currentLevel = 0;
+    currentLevel = 2;
     switch (currentLevel)
     {
         case 0:
             enemyNames = {"enemy_basic"};
             break;
         case 1:
-            enemyNames = {"enemy_basic","enemy_basic"};
+            enemyNames = {"enemy_basic","enemy_medium"};
             break;
         case 2:
-            enemyNames = {"enemy_basic","enemy_basic","enemy_basic"};
+            enemyNames = {"enemy_basic","enemy_medium","enemy_medium"};
             break;
         default:
             break;
@@ -104,11 +105,13 @@ void GameManager::startCurrentLevel()
     EnemyAI enemyAi(enemyNames);
     enemyCtl->addComponent(enemyAi);
     player = GameObject::Instantiate();
-    SpriteRenderer playerSkinRenderer(playerSkin);
+    SpriteRenderer playerSkinRenderer(playerShip->spriteName);
     player->addComponent(playerSkinRenderer);
     Vector2 position(player->getSize().getX() / 2,-player->getSize().getY());
-    position += Vector2(GW_X/2,GW_Y);
+    position += Vector2(GW_X/2,GW_Y - 2);
     player->moveTo(position);
+    Physics ph(player,0,0);
+    player->addComponent(ph);
     player->setCollisionTester(BETTER_BOUNDING_BOX);
     createBarriers();
 
@@ -175,7 +178,6 @@ void GameManager::gameOver()
 
 void GameManager::restartLevel()
 {
-    RenderManager::getInstance()->shouldClear=true;
     this->playerLives = 3;
     this->score = 0;
     startGame();
@@ -210,7 +212,51 @@ void GameManager::createSingleBarrier(const Vector2& position)
 
 void GameManager::winCurrentLevel()
 {
-    enemyCtl->markedForDelete = true;
-    RenderManager::getInstance()->shouldClear = true;
+    GameClock::getInstance()->killAll();
+    RenderManager::getInstance()->clearScreen();
+    shouldRun = false;
 }
+
+void GameManager::shipSelectionMenu()
+{
+    int index = 0;
+    int posY;
+    vector<ShipContainer> availableShips = AssetManager::getInstance()->getSpaceShips();
+    RenderManager* rm = RenderManager::getInstance();
+    Sprite ship(playerShip->spriteName);
+
+    TextBox desc(playerShip->displayName + "\n" + playerShip->description +
+    "\nTop Speed: " + to_string(playerShip->velocity),{0,0},9);
+
+    ship.moveTo(centerToScreen(&ship) + Vector2::Up().multiplyBy(4));
+    posY = ship.getSize().getY() + ship.getPosition().getY() + 1;
+    desc.moveTo({centerToScreen(&desc).getX(),posY});
+
+    while(true)
+    {
+        short kp = rm->getFirstKeyPressed();
+
+        switch (kp)
+        {
+            case ' ':
+                ship.erase();
+                desc.erase();
+                return;
+            case KEY_RIGHT:
+                playerShip = new ShipContainer(availableShips[(index++)%availableShips.size()]);
+                ship.erase();
+                ship = Sprite(playerShip->spriteName);
+                ship.moveTo(centerToScreen(&ship) + Vector2::Up().multiplyBy(4));
+                posY = ship.getSize().getY() + ship.getPosition().getY() + 1;
+                desc.erase();
+                desc.changeText(playerShip->displayName + "\n" + playerShip->description
+                + "\nTop Speed: " + to_string(playerShip->velocity));
+                desc.moveTo({centerToScreen(&desc).getX(),posY});
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 

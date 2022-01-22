@@ -93,3 +93,9 @@ void GameClock::unregisterForCollisions(GameObject *obj)
         }
     }
 }
+
+void GameClock::killAll()
+{
+    for (auto go : tickObjects)
+        go->markedForDelete = true;
+}

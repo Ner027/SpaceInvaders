@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <fstream>
-#include <sstream>
 #include "../CursesWrapper/Sprite.h"
 #include <iostream>
 AssetManager* AssetManager::instance = nullptr;
@@ -171,6 +170,32 @@ int AssetManager::getEnemyScore(const string &enemyName)
         throw runtime_error("Inimigo não encontrado!");
 
     return enemyScoreBuff[enemyName];
+}
+
+vector<ShipContainer> AssetManager::getSpaceShips()
+{
+    if (!shipData.empty())
+        return shipData;
+
+    stringstream ss;
+    ss << ASSET_PATH << "spaceShips.txt";
+    ifstream file = tryOpenFile(ss.str());
+    string buffer;
+
+    while(!file.eof())
+    {
+        getline(file,buffer);
+        auto spl =   string_split(buffer,';');
+        if (spl.size()!=4)
+            continue;
+        ShipContainer sc(spl[1],spl[0],spl[2],stof(spl[3]));
+        shipData.push_back(sc);
+    }
+
+    if (shipData.empty())
+        throw runtime_error("Nenhuma nave encontrada");
+
+    return shipData;
 
 }
 

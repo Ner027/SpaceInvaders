@@ -1,7 +1,6 @@
 #include <ncurses.h>
 #include "RenderManager.h"
 #include "../Util/Constants.h"
-#include <chrono>
 
 RenderManager* RenderManager::instance = nullptr;
 
@@ -41,7 +40,7 @@ RenderManager *RenderManager::getInstance()
     return instance;
 }
 
-void RenderManager::renderLoop()
+[[noreturn]] void RenderManager::renderLoop()
 {
     while (true)
     {
@@ -49,6 +48,7 @@ void RenderManager::renderLoop()
         {
             clear();
             shouldClear = false;
+            continue;
         }
         short kp = getch();
         if (kp != ERR)
@@ -91,4 +91,19 @@ short RenderManager::getFirstKeyPressed()
     }
     renderMutex.unlock();
     return temp;
+}
+
+void RenderManager::stopRendering()
+{
+}
+
+void RenderManager::destroyInstance()
+{
+    delete instance;
+    instance = nullptr;
+}
+
+void RenderManager::clearScreen()
+{
+    shouldClear = true;
 }

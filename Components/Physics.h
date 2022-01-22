@@ -11,14 +11,15 @@ private:
     float velX{},velY{};
     GameObject* parentObject;
     friend class GameObject;
+    int multiplier;
+    GameManager* gameManager = GameManager::getInstance();
 public:
-    explicit Physics(GameObject* go);
-    Physics(GameObject* go,float x,float y);
+    Physics(GameObject* go,float x,float y,int _multiplier = 1);
     void exitCleanly() override;
     void execute(char curTick) override;
     void onAdd() override;
     [[nodiscard]] std::string getName() const override{return "Physics";}
-    void setVelocity(float velX,float velY);
+    void setVelocity(float velX,float velY,int _multiplier);
 };
 
 

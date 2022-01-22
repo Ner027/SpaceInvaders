@@ -1,4 +1,5 @@
 #include "Util.h"
+#include "Constants.h"
 #include <stdexcept>
 #include <random>
 #include <locale>
@@ -52,5 +53,10 @@ string string_toLower(const string& str)
     for (char c : str)
         temp += tolower(c,loc);
     return temp;
+}
+
+Vector2 centerToScreen(ScreenObject *so)
+{
+    return Vector2(GW_X,GW_Y).divideBy(2) - so->getSize().divideBy(2);
 }
 

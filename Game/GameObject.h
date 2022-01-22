@@ -48,6 +48,7 @@ public:
     void moveTo(const Vector2& nPos);
     void setCollisionTester(CollisionTester tester);
     bool isColliding(GameObject* go);
+    void setVelocity(float x,float y,int multipler);
     [[nodiscard]] MovableComponent* getRenderComp();
     [[nodiscard]] Vector2 getPosition();
     [[nodiscard]] Vector2 getSize();

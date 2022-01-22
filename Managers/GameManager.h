@@ -3,6 +3,7 @@
 
 #include "../Game/GameObject.h"
 #include "../CursesWrapper/TextBox.h"
+#include "../Data/ShipContainer.h"
 #include <atomic>
 
 class GameManager
@@ -10,9 +11,9 @@ class GameManager
 private:
     short currentLevel = 0;
     short playerLives = 3;
-    string playerSkin = "ship_basic";
     GameObject* player;
     GameObject* enemyCtl;
+    ShipContainer* playerShip;
     atomic<int> score = 0;
     atomic<bool> shouldRun = false;
     TextBox scoreBox;
@@ -26,6 +27,7 @@ private:
     void backToMenu();
     void createBarriers();
     void createSingleBarrier(const Vector2& position);
+    void shipSelectionMenu();
     GameManager();
 public:
     atomic<bool> playerCanFire = true;

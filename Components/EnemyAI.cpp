@@ -32,7 +32,7 @@ void EnemyAI::execute(char curTick)
         go->moveBy(currentVelocity);
         auto position = go->getPosition();
         if (position.getX() >= farRight.getX())
-            farRight = position;
+            farRight = position + go->getSize();
         if(position.getX() <= farLeft.getX())
             farLeft = position;
 
@@ -52,7 +52,7 @@ void EnemyAI::execute(char curTick)
         else speedMultiplier = 3;
     }
 
-    if (farRight.getX() >= GW_X - 22)
+    if (farRight.getX() >= GW_X)
     {
         for (const auto& go : enemies)
             go.enemy->moveBy(Vector2::Down());
@@ -83,13 +83,14 @@ void EnemyAI::onAdd()
 {
     AssetManager* am = AssetManager::getInstance();
     rows = (int) enemyNames.size();
+    Vector2 basePosition = Vector2::Zero();
+
     for (int i = 0; i < rows; ++i)
     {
         AnimatedSprite enemySpriteRenderer(enemyNames[i]);
-        Vector2 positionDelta = Vector2(3,3) + enemySpriteRenderer.getSize();
         for (int j = 0; j < 9; ++j)
         {
-            Vector2 newPosition = positionDelta * Vector2(j,i);
+            Vector2 newPosition = Vector2(enemySpriteRenderer.getSize().getX() + 3,0).multiplyBy(j) + basePosition;
             auto enemy = GameObject::Instantiate();
             enemy->addComponent(enemySpriteRenderer);
             enemy->moveTo(newPosition);
@@ -98,6 +99,7 @@ void EnemyAI::onAdd()
             enemy->setCollisionTester(BETTER_BOUNDING_BOX);
             enemies.push_back(EnemyContainer(enemy,{j,i}));
         }
+        basePosition += Vector2::Down().multiplyBy(enemySpriteRenderer.getSize().getY()) + Vector2::Down().multiplyBy(2);
     }
     enemyCount = (int) enemies.size();
 }
@@ -107,11 +109,11 @@ bool EnemyAI::canShoot(const Vector2& position)
     if (!gameManager->enemyCanFire)
         return false;
 
-    if (position == lastEnemy)
+    if (position == lastEnemy && enemies.size() != 1)
         return false;
 
     int ri = randomInt(0,100);
-    if (ri >= 0)
+    if (ri > 10)
         return false;
 
     for (int i = position.getY() + 1; i < rows; ++i)

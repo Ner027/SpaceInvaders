@@ -27,6 +27,7 @@ public:
     void registerForCollisions(GameObject* obj);
     void unregisterForCollisions(GameObject* obj);
     void startGameClock();
+    void killAll();
 
 };
 
