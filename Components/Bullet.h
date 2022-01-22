@@ -3,7 +3,6 @@
 
 #include "IComponent.h"
 #include "ICollider.h"
-#include <atomic>
 #include "../Managers/GameManager.h"
 
 using namespace std;
@@ -17,7 +16,7 @@ public:
     void execute(char curTick) override;
     void onCollision(GameObject *gl, GameObject *gr) override;
     void onAdd() override;
-    [[nodiscard]] std::string getName() const override{return "Bullet";}
+    [[nodiscard]] string getName() const override{return "Bullet";}
 };
 
 

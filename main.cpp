@@ -18,9 +18,14 @@ int main()
     GameClock* gc = GameClock::getInstance();
     gc->startGameClock();
 
+    SpriteRenderer spr("chaimite");
+    auto go = GameObject::Instantiate();
+    go->addComponent(spr);
+
+    /*
     GameManager* gm = GameManager::getInstance();
     gm->startGame();
-
+     */
     while (true);
     return 0;
 }

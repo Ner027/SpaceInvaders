@@ -1,8 +1,9 @@
 #ifndef SPACEINVADERS_ANIMATEDSPRITE_H
 #define SPACEINVADERS_ANIMATEDSPRITE_H
+
 #include <map>
-#include "../CursesWrapper/Sprite.h"
 #include "MovableComponent.h"
+#include "../CursesWrapper/Sprite.h"
 
 using namespace std;
 class AnimatedSprite : public MovableComponent

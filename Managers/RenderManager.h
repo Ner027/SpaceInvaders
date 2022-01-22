@@ -24,7 +24,6 @@ public:
     void enqueueRenderAction(ScreenObject* object);
     void startRendering();
     short getFirstKeyPressed();
-    void stopRendering();
     void clearScreen();
     static void destroyInstance();
 

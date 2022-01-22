@@ -2,7 +2,7 @@
 #define SPACEINVADERS_UTIL_H
 #include <vector>
 #include <string>
-#include "../CursesWrapper/Vector2.h"
+#include "../Data/Vector2.h"
 #include "../CursesWrapper/ScreenObject.h"
 
 using namespace std;

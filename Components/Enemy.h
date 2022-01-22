@@ -1,7 +1,6 @@
 #ifndef SPACEINVADERS_ENEMY_H
 #define SPACEINVADERS_ENEMY_H
 
-
 #include "IComponent.h"
 #include "../Game/GameObject.h"
 #include <vector>

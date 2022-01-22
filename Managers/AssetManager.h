@@ -1,7 +1,7 @@
 #ifndef SPACEINVADERS_ASSETMANAGER_H
 #define SPACEINVADERS_ASSETMANAGER_H
 #include <map>
-#include "../CursesWrapper/SpriteContainer.h"
+#include "../Data/SpriteContainer.h"
 #include "../Data/ShipContainer.h"
 #include <vector>
 
@@ -10,6 +10,7 @@ class Sprite;
 class AssetManager
 {
 private:
+    //Recursos guardados em mapas para um acesso rápido
     map<string,SpriteContainer> spritePool;
     map<string,map<char,Sprite>> animPool;
     map<string,bool> gameConfigs;

@@ -1,8 +1,8 @@
 #ifndef SPACEINVADERS_SCREENOBJECT_H
 #define SPACEINVADERS_SCREENOBJECT_H
 
-#include <ncurses.h>
-#include "Vector2.h"
+#include "../Util/IncludeResolver.h"
+#include "../Data/Vector2.h"
 
 class ScreenObject
 {
@@ -17,8 +17,8 @@ public:
     virtual ~ScreenObject() = default;
     virtual void draw() = 0;
     virtual void erase() = 0;
-    virtual void moveBy(const Vector2& df) = 0;
-    virtual void moveTo(const Vector2& nPos) = 0;
+    virtual void moveBy(const Vector2& df);
+    virtual void moveTo(const Vector2& nPos);
     const Vector2& getSize() {return size;}
     const Vector2& getPosition() {return localPosition;}
 };

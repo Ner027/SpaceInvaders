@@ -13,8 +13,6 @@ public:
     Rect(const Vector2& position,const Vector2& size,short colorPair);
     void draw() override;
     void erase() override;
-    void moveBy(const Vector2 &df) override;
-    void moveTo(const Vector2 &nPos) override;
 };
 
 #endif

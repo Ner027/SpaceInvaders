@@ -1,5 +1,6 @@
 #ifndef SPACEINVADERS_GAMECLOCK_H
 #define SPACEINVADERS_GAMECLOCK_H
+
 #include <atomic>
 #include <thread>
 #include <mutex>
@@ -20,15 +21,13 @@ private:
     [[noreturn]] void gameLoop();
     GameClock();
 public:
-    atomic<short> pressedKey{};
     [[nodiscard]] static GameClock* getInstance();
-    static void kill();
     void registerObject(GameObject* object);
     void registerForCollisions(GameObject* obj);
     void unregisterForCollisions(GameObject* obj);
     void startGameClock();
     void killAll();
-
+    static void kill();
 };
 
 

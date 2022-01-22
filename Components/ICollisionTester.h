@@ -3,7 +3,6 @@
 
 #include "../Game/GameObject.h"
 
-
 class ICollisionTester
 {
 public:

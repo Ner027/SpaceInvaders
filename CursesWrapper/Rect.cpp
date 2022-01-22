@@ -3,6 +3,7 @@
 
 void Rect::eraseInternal()
 {
+    //Preocesso semelhante ao de desenho apenas para apagar
     attron(COLOR_PAIR(1));
     for (int i = 0; i < size.getY(); ++i)
     {
@@ -16,6 +17,7 @@ void Rect::eraseInternal()
 
 void Rect::drawInternal()
 {
+    //Iterar pelo tamanho do rectângulo e desenhar o mesmo com a cor desejada
     attron(COLOR_PAIR(colorPair));
     for (int i = 0; i < size.getY(); ++i)
     {
@@ -39,16 +41,6 @@ void Rect::erase()
     toDraw = false;
     auto copy = new Rect(*this);
     RenderManager::getInstance()->enqueueRenderAction(copy);
-
-}
-
-void Rect::moveBy(const Vector2 &df)
-{
-
-}
-
-void Rect::moveTo(const Vector2 &nPos)
-{
 
 }
 

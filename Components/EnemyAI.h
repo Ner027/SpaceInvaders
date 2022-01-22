@@ -20,7 +20,7 @@ class EnemyAI : public IComponent
 {
 private:
     int enemiesKilled = 0;
-    int enemyCount;
+    int enemyCount = -1;
     vector<EnemyContainer> enemies;
     vector<string> enemyNames;
     Vector2 currentVelocity;

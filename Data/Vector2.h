@@ -8,7 +8,6 @@ class Vector2
 private:
     int x,y;
 public:
-    Vector2(const Vector2& og);
     Vector2(int x,int y);
     Vector2& operator +=(const Vector2& v);
     Vector2 operator +(const Vector2& r) const;

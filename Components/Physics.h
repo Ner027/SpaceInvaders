@@ -2,7 +2,7 @@
 #define SPACEINVADERS_PHYSICS_H
 
 #include "IComponent.h"
-#include "../CursesWrapper/Vector2.h"
+#include "../Data/Vector2.h"
 #include "../Game/GameObject.h"
 
 class Physics : public IComponent

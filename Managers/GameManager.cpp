@@ -49,7 +49,7 @@ void GameManager::gameControllerLoop()
                 break;
         }
     }
-    enemyCtl->markedForDelete = true;
+    rm->clearScreen();
     this_thread::sleep_for(2s);
     removeLife();
 }
@@ -58,8 +58,6 @@ void GameManager::startGame()
 {
     shipSelectionMenu();
     startCurrentLevel();
-    shouldRun = true;
-    gameControllerLoop();
 }
 
 void GameManager::addScore(int i)
@@ -78,6 +76,7 @@ void GameManager::endCurrentLevel()
 
 void GameManager::startCurrentLevel()
 {
+    shouldRun = true;
 
     scoreBox.changeText("Score: 0");
     scoreBox.moveTo({5,GW_Y + 2});
@@ -114,7 +113,7 @@ void GameManager::startCurrentLevel()
     player->addComponent(ph);
     player->setCollisionTester(BETTER_BOUNDING_BOX);
     createBarriers();
-
+    gameControllerLoop();
 }
 
 void GameManager::shootBullet()
@@ -162,7 +161,7 @@ void GameManager::gameOver()
         int kp = rm->getFirstKeyPressed();
         switch (kp)
         {
-            case KEY_DOWN:
+            case ' ':
                 waitInput = false;
                 restartLevel();
                 break;
@@ -251,6 +250,17 @@ void GameManager::shipSelectionMenu()
                 desc.erase();
                 desc.changeText(playerShip->displayName + "\n" + playerShip->description
                 + "\nTop Speed: " + to_string(playerShip->velocity));
+                desc.moveTo({centerToScreen(&desc).getX(),posY});
+                break;
+            case KEY_LEFT:
+                playerShip = new ShipContainer(availableShips[(index--)%availableShips.size()]);
+                ship.erase();
+                ship = Sprite(playerShip->spriteName);
+                ship.moveTo(centerToScreen(&ship) + Vector2::Up().multiplyBy(4));
+                posY = ship.getSize().getY() + ship.getPosition().getY() + 1;
+                desc.erase();
+                desc.changeText(playerShip->displayName + "\n" + playerShip->description
+                                + "\nTop Speed: " + to_string(playerShip->velocity));
                 desc.moveTo({centerToScreen(&desc).getX(),posY});
                 break;
             default:

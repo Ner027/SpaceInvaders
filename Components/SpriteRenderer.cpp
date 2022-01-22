@@ -1,10 +1,7 @@
 #include "SpriteRenderer.h"
 #include "../Managers/AssetManager.h"
 
-void SpriteRenderer::execute(char curTick)
-{
-
-}
+void SpriteRenderer::execute(char curTick) {}
 
 void SpriteRenderer::draw()
 {
@@ -43,7 +40,7 @@ Sprite SpriteRenderer::getCurrentSprite()
 
 void SpriteRenderer::onAdd()
 {
-
+    this->draw();
 }
 
 SpriteRenderer::SpriteRenderer(const string &spriteName) : spr(spriteName) {}
