@@ -11,6 +11,14 @@
 #include <cmath>
 #include <sstream>
 
+#define MAIN_MENU 0
+#define SHIP_MENU 1
+#define SCOREBOARD_MENU 2
+#define START_LEVEL 3
+#define GAME_LOOP 4
+#define DO_CLEANUP 5
+#define GAMEOVER 6
+
 GameManager* GameManager::instance = nullptr;
 
 GameManager::GameManager()
@@ -68,12 +76,14 @@ void GameManager::gameControllerLoop()
                 break;
         }
     }
-    postLevelCleanup();
+    nextState = DO_CLEANUP;
 }
 
 void GameManager::startGame()
 {
-    mainMenu();
+    currentState = MAIN_MENU;
+    nextState = MAIN_MENU;
+    stateMachine();
 }
 
 void GameManager::addScore(int i)
@@ -89,6 +99,8 @@ void GameManager::addScore(int i)
 void GameManager::endCurrentLevel()
 {
     shouldRun = false;
+    hasWon = false;
+    nextState = DO_CLEANUP;
 }
 
 void GameManager::startCurrentLevel()
@@ -139,8 +151,7 @@ void GameManager::startCurrentLevel()
         player->setCollisionTester(BETTER_BOUNDING_BOX);
     //Criar as barreiras
     createBarriers();
-    //Entrar no loop de controlo do jogo
-    gameControllerLoop();
+    nextState = GAME_LOOP;
 }
 
 ///Dispara uma bala proveniente do jogador
@@ -188,8 +199,7 @@ void GameManager::gameOver()
     }
     //Apagar o desenho
     spr.erase();
-    //Voltar ao menu
-    mainMenu();
+    nextState = MAIN_MENU;
 }
 
 ///Criar as 3 barreiras
@@ -224,6 +234,7 @@ void GameManager::winCurrentLevel()
     if (currentLevel != 2)
     {
         currentLevel++;
+        nextState = START_LEVEL;
     }
     else
     {
@@ -234,7 +245,7 @@ void GameManager::winCurrentLevel()
         textBox.moveTo(centerToScreen(&textBox));
         this_thread::sleep_for(3s);
         RenderManager::getInstance()->clearScreen();
-        mainMenu();
+        nextState = MAIN_MENU;
     }
     GameClock::getInstance()->killAll();
     RenderManager::getInstance()->clearScreen();
@@ -263,6 +274,8 @@ void GameManager::shipSelectionMenu()
             case ' ':
                 ship.erase();
                 desc.erase();
+                playerLives = playerShip->healthPoints;
+                nextState = START_LEVEL;
                 return;
             case KEY_RIGHT:
                 delete playerShip;
@@ -303,20 +316,24 @@ void GameManager::postLevelCleanup()
     if (!hasWon)
     {
         if(--playerLives == 0)
-            gameOver();
+        {
+            nextState = GAMEOVER;
+            return;
+        }
         text = to_string(playerLives)  + "\nHP\nLeft";
     }
     else
     {
         text = "You Won\nScore " + to_string(score);
         hasWon = false;
+        nextState = MAIN_MENU;
     }
 
     BigTextBox textBox(text, {0,0});
     textBox.moveTo(centerToScreen(&textBox));
     this_thread::sleep_for(3s);
     textBox.erase();
-    startCurrentLevel();
+    nextState = START_LEVEL;
 }
 
 string GameManager::getShipDescription(ShipContainer& sc)
@@ -384,12 +401,9 @@ void GameManager::mainMenu()
             getName();
             rm->clearScreen();
             score = 0;
-            shipSelectionMenu();
-            playerLives = playerShip->healthPoints;
-            startCurrentLevel();
+            nextState = SHIP_MENU;
             break;
         case 1:
-            scoreBoardMenu();
             break;
         case 2:
             RenderManager::destroyInstance();
@@ -468,7 +482,40 @@ void GameManager::scoreBoardMenu()
             break;
     }
     rm->clearScreen();
-    mainMenu();
+    nextState = MAIN_MENU;
+}
 
+void GameManager::stateMachine()
+{
+    while (true)
+    {
+        currentState = nextState;
+        switch (currentState)
+        {
+            case MAIN_MENU:
+                mainMenu();
+                break;
+            case SHIP_MENU:
+                shipSelectionMenu();
+                break;
+            case SCOREBOARD_MENU:
+                scoreBoardMenu();
+                break;
+            case START_LEVEL:
+                startCurrentLevel();
+                break;
+            case GAME_LOOP:
+                gameControllerLoop();
+                break;
+            case DO_CLEANUP:
+                postLevelCleanup();
+                break;
+            case GAMEOVER:
+                gameOver();
+                break;
+            default:
+                break;
+        }
+    }
 }
 

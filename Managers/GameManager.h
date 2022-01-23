@@ -13,6 +13,8 @@ private:
     string playerName = "";
     short currentLevel = 0;
     short playerLives = 3;
+    char currentState;
+    char nextState;
     GameObject* player = nullptr;
     GameObject* enemyCtl = nullptr;
     ShipContainer* playerShip;
@@ -32,6 +34,7 @@ private:
     void shipSelectionMenu();
     void scoreBoardMenu();
     static void createSingleBarrier(const Vector2& position);
+    void stateMachine();
     static string getShipDescription(ShipContainer& sc);
     void mainMenu();
     GameManager();
