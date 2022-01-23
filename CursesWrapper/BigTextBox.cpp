@@ -63,7 +63,13 @@ BigTextBox::BigTextBox(const string& _text,const Vector2& position) : ScreenObje
     {
         vector<Sprite> line;
         for (auto c : str)
-            line.emplace_back(string(1, (char) toupper(c)));
+        {
+            string fname;
+            if (c == ' ')
+                fname = "Space";
+            else fname = string(1,char(toupper(c)));
+            line.emplace_back(fname);
+        }
         text.push_back(line);
     }
     relocateLines();

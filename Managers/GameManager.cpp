@@ -9,16 +9,13 @@
 #include "AssetManager.h"
 #include "../Util/Util.h"
 #include "../CursesWrapper/BigTextBox.h"
+#include <cmath>
 
 GameManager* GameManager::instance = nullptr;
 
 GameManager::GameManager()
 {
     playerShip = new ShipContainer(AssetManager::getInstance()->getSpaceShips().front());
-    Rect rect({0,GW_Y},{(GW_X / 2),1},8);
-    rect.draw();
-    Rect rect2({GW_X + 1,0},{1,GW_Y},8);
-    rect2.draw();
 }
 
 GameManager *GameManager::getInstance()
@@ -28,9 +25,13 @@ GameManager *GameManager::getInstance()
     return instance;
 }
 
+
 void GameManager::gameControllerLoop()
 {
     RenderManager* rm = RenderManager::getInstance();
+    using namespace std::chrono;
+    auto lastFire = high_resolution_clock::now();
+    long fireR = playerShip->fireRate;
 
     while (shouldRun)
     {
@@ -43,8 +44,16 @@ void GameManager::gameControllerLoop()
             case KEY_RIGHT:
                 player->setVelocity(playerShip->velocity,0,2);
                 break;
+            case ' ':
+                if (duration_cast<milliseconds>(high_resolution_clock::now() - lastFire).count() >= fireR)
+                {
+                    shootBullet();
+                    lastFire = high_resolution_clock::now();
+                }
+                break;
+            case KEY_DOWN:
             case KEY_UP:
-                shootBullet();
+                player->setVelocity(0,0,1);
                 break;
             default:
                 break;
@@ -55,10 +64,7 @@ void GameManager::gameControllerLoop()
 
 void GameManager::startGame()
 {
-    score = 0;
-    playerLives = 3;
-    shipSelectionMenu();
-    startCurrentLevel();
+    mainMenu();
 }
 
 void GameManager::addScore(int i)
@@ -76,8 +82,12 @@ void GameManager::endCurrentLevel()
 
 void GameManager::startCurrentLevel()
 {
-    shouldRun = true;
+    Rect rect({0,GW_Y},{(GW_X / 2),1},8);
+    rect.draw();
+    Rect rect2({GW_X + 1,0},{1,GW_Y},8);
+    rect2.draw();
 
+    shouldRun = true;
     scoreBox.changeText("Score: " + to_string(score));
     scoreBox.moveTo({5,GW_Y + 2});
 
@@ -86,17 +96,16 @@ void GameManager::startCurrentLevel()
 
     enemyCtl = GameObject::Instantiate();
     vector<string> enemyNames;
-    currentLevel = 2;
     switch (currentLevel)
     {
         case 0:
             enemyNames = {"enemy_basic"};
             break;
         case 1:
-            enemyNames = {"enemy_basic","enemy_medium"};
+            enemyNames = {"enemy_medium","enemy_basic"};
             break;
         case 2:
-            enemyNames = {"enemy_basic","enemy_medium","enemy_medium"};
+            enemyNames = {"enemy_medium","enemy_medium","enemy_basic"};
             break;
         default:
             break;
@@ -106,7 +115,8 @@ void GameManager::startCurrentLevel()
     player = GameObject::Instantiate();
     SpriteRenderer playerSkinRenderer(playerShip->spriteName);
     player->addComponent(playerSkinRenderer);
-    player->moveTo(Vector2(GW_X/2,GW_Y - 2) - player->getSize());
+    player->moveTo(Vector2(GW_X/2,GW_Y - 2)
+    - Vector2(player->getSize().getX()/2,player->getSize().getY()));
 
     Physics ph(player,0,0);
     player->addComponent(ph);
@@ -117,8 +127,6 @@ void GameManager::startCurrentLevel()
 
 void GameManager::shootBullet()
 {
-    if (!playerCanFire)
-        return;
     auto bulletObject = GameObject::Instantiate();
     SpriteRenderer spriteRenderer("bullet");
     bulletObject->addComponent(spriteRenderer);
@@ -130,7 +138,6 @@ void GameManager::shootBullet()
     bulletObject->addComponent(bullet);
     bulletObject->addComponent(bulletPhysics);
     bulletObject->setCollisionTester(BETTER_BOUNDING_BOX);
-    playerCanFire = false;
 }
 
 long GameManager::getPlayerId() const
@@ -151,19 +158,7 @@ void GameManager::gameOver()
             break;
     }
     spr.erase();
-    startGame();
-}
-
-void GameManager::restartLevel()
-{
-    this->playerLives = 3;
-    this->score = 0;
-    startGame();
-}
-
-void GameManager::backToMenu()
-{
-
+    mainMenu();
 }
 
 void GameManager::createBarriers()
@@ -190,8 +185,11 @@ void GameManager::createSingleBarrier(const Vector2& position)
 
 void GameManager::winCurrentLevel()
 {
+    if (currentLevel != 2)
+        currentLevel++;
     GameClock::getInstance()->killAll();
     RenderManager::getInstance()->clearScreen();
+    hasWon = true;
     shouldRun = false;
 }
 
@@ -203,8 +201,7 @@ void GameManager::shipSelectionMenu()
     RenderManager* rm = RenderManager::getInstance();
     Sprite ship(playerShip->spriteName);
 
-    TextBox desc(playerShip->displayName + "\n" + playerShip->description +
-    "\nTop Speed: " + to_string(playerShip->velocity),{0,0},9);
+    TextBox desc(getShipDescription(*playerShip),{0,0},9);
 
     ship.moveTo(centerToScreen(&ship) + Vector2::Up().multiplyBy(4));
     posY = ship.getSize().getY() + ship.getPosition().getY() + 1;
@@ -221,25 +218,23 @@ void GameManager::shipSelectionMenu()
                 desc.erase();
                 return;
             case KEY_RIGHT:
+                delete playerShip;
                 playerShip = new ShipContainer(availableShips[(index++)%availableShips.size()]);
                 ship.erase();
                 ship = Sprite(playerShip->spriteName);
                 ship.moveTo(centerToScreen(&ship) + Vector2::Up().multiplyBy(4));
                 posY = ship.getSize().getY() + ship.getPosition().getY() + 1;
-                desc.erase();
-                desc.changeText(playerShip->displayName + "\n" + playerShip->description
-                + "\nTop Speed: " + to_string(playerShip->velocity));
+                desc.changeText(getShipDescription(*playerShip));
                 desc.moveTo({centerToScreen(&desc).getX(),posY});
                 break;
             case KEY_LEFT:
+                delete playerShip;
                 playerShip = new ShipContainer(availableShips[(index--)%availableShips.size()]);
                 ship.erase();
                 ship = Sprite(playerShip->spriteName);
                 ship.moveTo(centerToScreen(&ship) + Vector2::Up().multiplyBy(4));
                 posY = ship.getSize().getY() + ship.getPosition().getY() + 1;
-                desc.erase();
-                desc.changeText(playerShip->displayName + "\n" + playerShip->description
-                                + "\nTop Speed: " + to_string(playerShip->velocity));
+                desc.changeText(getShipDescription(*playerShip));
                 desc.moveTo({centerToScreen(&desc).getX(),posY});
                 break;
             default:
@@ -253,16 +248,126 @@ void GameManager::postLevelCleanup()
     shouldRun = false;
     GameClock::getInstance()->killAll();
     this_thread::sleep_for(0.5s);
-
-    if(--playerLives == 0)
-        gameOver();
+    RenderManager::getInstance()->clearInputQueue();
     scoreBox.erase();
     livesBox.erase();
-    BigTextBox textBox(to_string(playerLives)  + "\nHP\nLeft", {0,0});
+
+    string text;
+    if (!hasWon)
+    {
+        if(--playerLives == 0)
+            gameOver();
+        text = to_string(playerLives)  + "\nHP\nLeft";
+    }
+    else
+    {
+        text = "You Won\nScore " + to_string(score);
+        hasWon = false;
+    }
+
+    BigTextBox textBox(text, {0,0});
     textBox.moveTo(centerToScreen(&textBox));
     this_thread::sleep_for(3s);
     textBox.erase();
     startCurrentLevel();
 }
+
+string GameManager::getShipDescription(ShipContainer& sc)
+{
+    return sc.displayName + "\n" + "Top Speed: " + to_string(sc.velocity)
+        + "\n Health Points:" + to_string(sc.healthPoints) + "\nFire Rate: "
+        + to_string(round(1/((double)sc.fireRate * 0.001))) + "RPS\n" + sc.description;
+}
+
+void GameManager::mainMenu()
+{
+    bool keepPooling = true;
+    RenderManager* rm = RenderManager::getInstance();
+
+    int selection = 0;
+    BigTextBox title("Space\nInvaders\n \nStart\n \nScoreboard\n \nExit",{170,5});
+
+    Sprite selector("selector");
+    selector.moveTo({GW_X - 15,26});
+
+    Sprite spr("xaimite");
+    spr.moveTo(Vector2(0, GW_Y/2 - spr.getSize().getY()/2));
+    title.draw();
+
+    while (keepPooling)
+    {
+        short kp = rm->getFirstKeyPressed();
+        switch (kp)
+        {
+            case KEY_UP:
+                if (selection == 0)
+                {
+                    selector.moveBy({0,24});
+                    selection = 2;
+                }
+                else
+                {
+                    selector.moveBy({0,-12});
+                    selection--;
+                }
+                break;
+            case KEY_DOWN:
+                if (selection == 2)
+                {
+                    selector.moveBy({0,-24});
+                    selection = 0;
+                }
+                else
+                {
+                    selector.moveBy({0,12});
+                    selection++;
+                }
+                break;
+            case ' ':
+                keepPooling = false;
+                break;
+            default:
+                break;
+        }
+    }
+    switch (selection)
+    {
+        case 0:
+            rm->clearScreen();
+            getName();
+            rm->clearScreen();
+            score = 0;
+            shipSelectionMenu();
+            playerLives = playerShip->healthPoints;
+            startCurrentLevel();
+            break;
+        case 1:
+            break;
+        case 2:
+            RenderManager::destroyInstance();
+            GameClock::destroyInstance();
+            AssetManager::destroyInstance();
+            exit(0);
+            break;
+        default:
+            break;
+    }
+}
+
+void GameManager::getName()
+{
+    bool keepPooling = true;
+    if (!playerName.empty())
+        return;
+
+    BigTextBox title("Please insert your name",{0,0});
+    title.moveTo(centerToScreen(&title) - Vector2::Up().multiplyBy(5));
+
+    while (keepPooling)
+    {
+
+    }
+}
+
 
 

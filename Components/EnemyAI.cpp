@@ -61,7 +61,7 @@ void EnemyAI::execute(char curTick)
     }
 
     //Se o extermo direito estiver no fim da janela do jogo
-    if (farRight.getX() >= GW_X)
+    if (farRight.getX() >= GW_X - 1)
     {
         //Mover todos os inimigos 1 para baixo
         for (const auto& go : enemies)
@@ -108,6 +108,7 @@ void EnemyAI::onAdd()
             Vector2 newPosition = Vector2(enemySpriteRenderer.getSize().getX() + 3,0).multiplyBy(j) + basePosition;
             //Criar o inimigo e os seus componentes
             auto enemy = GameObject::Instantiate();
+            enemy->setFlag("isEnemy", true);
             enemy->addComponent(enemySpriteRenderer);
             enemy->moveTo(newPosition);
             Enemy en(am->getEnemyScore(enemyNames[i]));
@@ -134,7 +135,7 @@ bool EnemyAI::canShoot(const Vector2& position)
     //Chance de disparar
     int ri = randomInt(0,100);
     //O valor a direita é a percentagem de chance
-    if (ri > 10)
+    if (ri > 5)
         return false;
 
     /*Verificar se todas as posições abaixo do inimigo que irá disparar

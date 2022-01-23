@@ -27,6 +27,7 @@ class GameObject
 private:
     friend class GameClock;
     long selfId = 0;
+    map<string,bool> objectFlags;
     map<string,IComponent*> objectComponents;
     MovableComponent* cachedRenderComp = nullptr;
     ICollider* colliderComponent = nullptr;
@@ -49,11 +50,13 @@ public:
     void setCollisionTester(CollisionTester tester);
     bool isColliding(GameObject* go);
     void setVelocity(float x,float y,int multipler);
+    void setFlag(const string& key,bool b);
     [[nodiscard]] MovableComponent* getRenderComp();
     [[nodiscard]] Vector2 getPosition();
     [[nodiscard]] Vector2 getSize();
     [[nodiscard]] IComponent* getComponent(const string& compName);
     [[nodiscard]] long getId() const;
+    [[nodiscard]] bool getFlag(const string& key);
 };
 
 #endif

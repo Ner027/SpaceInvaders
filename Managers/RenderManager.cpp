@@ -41,20 +41,20 @@ RenderManager *RenderManager::getInstance()
 }
 
 ///Loop que trata da renderização de objectos para o ecrã,corre numa thread própria
-[[noreturn]] void RenderManager::renderLoop()
+void RenderManager::renderLoop()
 {
-    while (true)
+    while (keepRunning)
     {
         //Caso queira limpar o ecrã
         if (shouldClear)
         {
-            /*Devido ás limitações do Curses não é possível efetuar operações no ecrã
+            /*Devido às limitações do Curses não é possível efetuar operações no ecrã
              * de duas threads diferentes então é necessário isto*/
             clear();
             shouldClear = false;
             continue;
         }
-        //Pela mesma razão do clear,a input tem de ser tratada nesta thread
+        //Pela mesma razão do ‘clear’, a input tem de ser tratada nesta thread
 
         //Ler o caracter
         short kp = getch();
@@ -62,7 +62,7 @@ RenderManager *RenderManager::getInstance()
         if (kp != ERR)
             inputQueue.push(kp);
 
-        //Senão houver nada para renderizar volta ao início do loop
+        //Senão houver nada para renderizar volta ao início do ‘loop’
         if (renderQueue.empty())
             continue;
 
@@ -85,6 +85,7 @@ RenderManager *RenderManager::getInstance()
 void RenderManager::startRendering()
 {
     //Assim como o GameClock este também roda numa thread própria em modo separado
+    keepRunning = true;
     renderThread = thread(&RenderManager::renderLoop,this);
     renderThread.detach();
 }
@@ -124,4 +125,18 @@ void RenderManager::destroyInstance()
 void RenderManager::clearScreen()
 {
     shouldClear = true;
+}
+
+void RenderManager::clearInputQueue()
+{
+    renderMutex.lock();
+    while (!inputQueue.empty())
+        inputQueue.pop();
+    flushinp();
+    renderMutex.unlock();
+}
+
+RenderManager::~RenderManager()
+{
+    keepRunning = false;
 }

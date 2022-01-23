@@ -19,6 +19,8 @@ private:
     void tryLoadSprite(const string& spriteName,bool isAnimation);
     void tryLoadAnimation(const string& animName);
     static AssetManager* instance;
+    AssetManager() = default;
+    ~AssetManager();
 public:
     [[nodiscard]] SpriteContainer getSprite(const string& spriteName);
     [[nodiscard]] map<char,Sprite> getAnimation(const string& animName);
@@ -27,6 +29,7 @@ public:
     [[nodiscard]] int getEnemyScore(const string& enemyName);
     [[nodiscard]] vector<ShipContainer> getSpaceShips();
     static AssetManager* getInstance();
+    static void destroyInstance();
     void kill();
 };
 

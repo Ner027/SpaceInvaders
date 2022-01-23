@@ -18,13 +18,15 @@ private:
     RenderManager();
     [[noreturn]] void renderLoop();
     atomic<bool> shouldClear = false;
-
+    atomic<bool> keepRunning;
+    ~RenderManager();
 public:
     static RenderManager* getInstance();
     void enqueueRenderAction(ScreenObject* object);
     void startRendering();
     short getFirstKeyPressed();
     void clearScreen();
+    void clearInputQueue();
     static void destroyInstance();
 
 };

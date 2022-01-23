@@ -21,7 +21,7 @@ void Physics::execute(char curTick)
     Vector2 pos = parentObject->getPosition();
     Vector2 upperBound = parentObject->getSize() + parentObject->getPosition();
 
-    if(pos.getX() < 2 || upperBound.getX() >= GW_X || pos.getY() < 0 || upperBound.getY() >= GW_Y - 1)
+    if(pos.getX() < 2 || upperBound.getX() > GW_X - 2 || pos.getY() < 0 || upperBound.getY() >= GW_Y - 1)
     {
         //Se for o jogador não destruir
         if (gameManager->getPlayerId() == parentObject->getId())

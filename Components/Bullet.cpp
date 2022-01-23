@@ -5,14 +5,12 @@ void Bullet::execute(char curTick) {}
 
 void Bullet::exitCleanly()
 {
-    /*Quando o objecto da bala for destruido,verificar qual foi o objecto que a criou
-     * caso tenha sido o jogador, permitir que este dispare novamente,ou então permitir
-     * que o inimigo dispare novamente*/
+    /*Quando o objecto da bala for destruido, verificar qual foi o objecto que a criou
+     * caso tenha sido um inimigo permitir que disparem novamente*/
 
     auto gm = GameManager::getInstance();
-    if (parent->getId() == gm->getPlayerId())
-        gm->playerCanFire = true;
-    else gm->enemyCanFire = true;
+    if (parent->getId() != gm->getPlayerId())
+        gm->enemyCanFire = true;
 }
 
 void Bullet::onCollision(GameObject *gl, GameObject *gr)
@@ -21,6 +19,8 @@ void Bullet::onCollision(GameObject *gl, GameObject *gr)
     if (gr->getId() == parent->getId())
         return;
 
+    if (parent->getFlag("isEnemy") && gr->getFlag("isEnemy"))
+        return;
 
     auto gm = GameManager::getInstance();
     long playerId = gm->getPlayerId();

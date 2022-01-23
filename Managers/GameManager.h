@@ -5,33 +5,36 @@
 #include "../CursesWrapper/TextBox.h"
 #include "../Data/ShipContainer.h"
 #include <atomic>
+#include <chrono>
 
 class GameManager
 {
 private:
+    string playerName = "";
     short currentLevel = 0;
     short playerLives = 3;
-    GameObject* player;
-    GameObject* enemyCtl;
+    GameObject* player = nullptr;
+    GameObject* enemyCtl = nullptr;
     ShipContainer* playerShip;
     atomic<int> score = 0;
     atomic<bool> shouldRun = false;
+    atomic<bool> hasWon = false;
     TextBox scoreBox;
     TextBox livesBox;
     static GameManager* instance;
+    void getName();
     void gameControllerLoop();
     void startCurrentLevel();
     void shootBullet();
     void gameOver();
-    void restartLevel();
     void postLevelCleanup();
-    void backToMenu();
-    void createBarriers();
-    void createSingleBarrier(const Vector2& position);
+    static void createBarriers();
     void shipSelectionMenu();
+    static void createSingleBarrier(const Vector2& position);
+    static string getShipDescription(ShipContainer& sc);
+    void mainMenu();
     GameManager();
 public:
-    atomic<bool> playerCanFire = true;
     atomic<bool> enemyCanFire = true;
     static GameManager* getInstance();
     void startGame();

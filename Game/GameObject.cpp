@@ -203,5 +203,20 @@ void GameObject::setVelocity(float x, float y,int multiplier = 1)
     pComp->setVelocity(x,y,multiplier);
 }
 
+void GameObject::setFlag(const string &key, bool b)
+{
+    if (objectFlags.contains(key))
+        objectFlags[key] = b;
+    else objectFlags.insert(pair<string,bool>(key,b));
+}
+
+bool GameObject::getFlag(const string &key)
+{
+    if (objectFlags.contains(key))
+        return objectFlags[key];
+    
+    return false;
+}
+
 
 

@@ -14,12 +14,14 @@ private:
     mutex gameMutex;
     thread gameThread;
     atomic<char> currentTick = 0;
+    atomic<bool> keepRunning = false;
     long currentIdentifier = 0;
     vector<GameObject*> tickObjects;
     vector<GameObject*> registeredCollisionObjects;
     static GameClock* instance;
-    [[noreturn]] void gameLoop();
-    GameClock();
+    void gameLoop();
+    GameClock() = default;
+    ~GameClock();
 public:
     [[nodiscard]] static GameClock* getInstance();
     void registerObject(GameObject* object);
@@ -27,7 +29,7 @@ public:
     void unregisterForCollisions(GameObject* obj);
     void startGameClock();
     void killAll();
-    static void kill();
+    static void destroyInstance();
 };
 
 

@@ -234,9 +234,11 @@ vector<ShipContainer> AssetManager::getSpaceShips()
     {
         getline(file,buffer);
         auto spl =   string_split(buffer,';');
-        if (spl.size()!=4)
+        if (spl.size()!=6)
             continue;
-        ShipContainer sc(spl[1],spl[0],spl[2],stof(spl[3]));
+        ShipContainer
+        sc(spl[1],spl[0],spl[2],
+                         stof(spl[3]), stol(spl[4]), stos(spl[5]));
         shipData.push_back(sc);
     }
 
@@ -246,11 +248,15 @@ vector<ShipContainer> AssetManager::getSpaceShips()
 
     return shipData;
 }
-void AssetManager::kill()
-{
-    //Libertar toda a memória alocada
-    for (auto pair : spritePool)
-        delete[] pair.second.getPixelMatrix();
 
+AssetManager::~AssetManager()
+{
+    for(auto& pair : spritePool)
+        delete [] pair.second.getPixelMatrix();
+}
+
+void AssetManager::destroyInstance()
+{
     delete instance;
+    instance = nullptr;
 }

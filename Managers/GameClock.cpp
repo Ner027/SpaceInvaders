@@ -12,13 +12,12 @@ GameClock *GameClock::getInstance()
     return instance;
 }
 
-GameClock::GameClock() = default;
 
 using namespace std::chrono;
 ///Loop que trata a lógica do jogo,roda numa thread separada
-[[noreturn]] void GameClock::gameLoop()
+void GameClock::gameLoop()
 {
-    while (true)
+    while (keepRunning)
     {
         //Guardar o tempo onde o tick começou
         auto startTime = high_resolution_clock::now();
@@ -68,17 +67,11 @@ using namespace std::chrono;
 
 void GameClock::startGameClock()
 {
+    keepRunning = true;
     //Começa o relógio do jogo criando uma thread para o mesmo
     gameThread = thread(&GameClock::gameLoop, this);
     //Rodar a thread separada da thread principal
     gameThread.detach();
-}
-
-
-//TODO:Fix this
-void GameClock::kill()
-{
-    delete instance;
 }
 
 /// Regista um novo objecto no relógio do jogo
@@ -129,4 +122,15 @@ void GameClock::killAll()
     for (auto go : tickObjects)
         go->markedForDelete = true;
     gameMutex.unlock();
+}
+
+void GameClock::destroyInstance()
+{
+    delete instance;
+    instance = nullptr;
+}
+
+GameClock::~GameClock()
+{
+    keepRunning = false;
 }
