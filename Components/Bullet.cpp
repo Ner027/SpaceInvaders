@@ -17,12 +17,15 @@ void Bullet::exitCleanly()
 
 void Bullet::onCollision(GameObject *gl, GameObject *gr)
 {
-    //Se ambos os objectos forem inimigos, não colidir
-    if (gl->getComponent("Enemy") && gr->getComponent("Enemy"))
+    //Se o objecto com o qual colidiu for o objecto que a criou retornar
+    if (gr->getId() == parent->getId())
         return;
+
 
     auto gm = GameManager::getInstance();
     long playerId = gm->getPlayerId();
+
+
     //Se o objecto com o qual colidiu, for o jogador
     if (gr->getId() == playerId)
         gm->endCurrentLevel();

@@ -144,6 +144,11 @@ Vector2 &Vector2::operator*=(const Vector2 &r)
     return *this;
 }
 
+Vector2 Vector2::One()
+{
+    return {1,1};
+}
+
 
 
 

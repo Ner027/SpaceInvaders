@@ -125,6 +125,8 @@ void GameClock::unregisterForCollisions(GameObject *obj)
 ///Metodo que apaga todos os objetos de jogo registados no momento
 void GameClock::killAll()
 {
+    gameMutex.lock();
     for (auto go : tickObjects)
         go->markedForDelete = true;
+    gameMutex.unlock();
 }

@@ -22,6 +22,7 @@ public:
     static Vector2 Right();
     static Vector2 Left();
     static Vector2 Zero();
+    static Vector2 One();
     const Vector2& absolute();
     [[nodiscard]] Vector2 multiplyBy(int fact) const;
     [[nodiscard]] Vector2 divideBy(int fact) const;

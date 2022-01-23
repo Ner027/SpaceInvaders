@@ -8,6 +8,7 @@
 #include "RenderManager.h"
 #include "AssetManager.h"
 #include "../Util/Util.h"
+#include "../CursesWrapper/BigTextBox.h"
 
 GameManager* GameManager::instance = nullptr;
 
@@ -49,13 +50,13 @@ void GameManager::gameControllerLoop()
                 break;
         }
     }
-    rm->clearScreen();
-    this_thread::sleep_for(2s);
-    removeLife();
+    postLevelCleanup();
 }
 
 void GameManager::startGame()
 {
+    score = 0;
+    playerLives = 3;
     shipSelectionMenu();
     startCurrentLevel();
 }
@@ -71,14 +72,13 @@ void GameManager::addScore(int i)
 void GameManager::endCurrentLevel()
 {
     shouldRun = false;
-    GameClock::getInstance()->killAll();
 }
 
 void GameManager::startCurrentLevel()
 {
     shouldRun = true;
 
-    scoreBox.changeText("Score: 0");
+    scoreBox.changeText("Score: " + to_string(score));
     scoreBox.moveTo({5,GW_Y + 2});
 
     livesBox.changeText("Lives: " + to_string(playerLives));
@@ -106,9 +106,8 @@ void GameManager::startCurrentLevel()
     player = GameObject::Instantiate();
     SpriteRenderer playerSkinRenderer(playerShip->spriteName);
     player->addComponent(playerSkinRenderer);
-    Vector2 position(player->getSize().getX() / 2,-player->getSize().getY());
-    position += Vector2(GW_X/2,GW_Y - 2);
-    player->moveTo(position);
+    player->moveTo(Vector2(GW_X/2,GW_Y - 2) - player->getSize());
+
     Physics ph(player,0,0);
     player->addComponent(ph);
     player->setCollisionTester(BETTER_BOUNDING_BOX);
@@ -139,40 +138,20 @@ long GameManager::getPlayerId() const
     return player->getId();
 }
 
-void GameManager::removeLife()
-{
-    playerLives--;
-    if (playerLives == 0)
-        gameOver();
-
-    livesBox.changeText("Lives: " + to_string(playerLives));
-    startGame();
-}
-
 void GameManager::gameOver()
 {
     RenderManager* rm = RenderManager::getInstance();
     Sprite spr("gameover");
-    spr.moveTo({(GW_X / 2) - spr.getSize().getX() / 2,(GW_Y / 2) - spr.getSize().getY() / 2});
+    spr.moveTo(centerToScreen(&spr));
 
-    bool waitInput = true;
-    while (waitInput)
+    while (true)
     {
         int kp = rm->getFirstKeyPressed();
-        switch (kp)
-        {
-            case ' ':
-                waitInput = false;
-                restartLevel();
-                break;
-            case 27:
-                waitInput = false;
-                backToMenu();
-                break;
-            default:
-                break;
-        }
+        if (kp == ' ')
+            break;
     }
+    spr.erase();
+    startGame();
 }
 
 void GameManager::restartLevel()
@@ -267,6 +246,23 @@ void GameManager::shipSelectionMenu()
                 break;
         }
     }
+}
+
+void GameManager::postLevelCleanup()
+{
+    shouldRun = false;
+    GameClock::getInstance()->killAll();
+    this_thread::sleep_for(0.5s);
+
+    if(--playerLives == 0)
+        gameOver();
+    scoreBox.erase();
+    livesBox.erase();
+    BigTextBox textBox(to_string(playerLives)  + "\nHP\nLeft", {0,0});
+    textBox.moveTo(centerToScreen(&textBox));
+    this_thread::sleep_for(3s);
+    textBox.erase();
+    startCurrentLevel();
 }
 
 

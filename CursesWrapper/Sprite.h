@@ -7,6 +7,7 @@
 class Sprite : public ScreenObject
 {
 private:
+    friend class BigTextBox;
     Vector2 internalSize;
     std::string spriteName;
     short* pixelMatrix;

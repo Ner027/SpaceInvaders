@@ -21,6 +21,7 @@ public:
     void draw() override;
     void changeText(const string& newText);
     void addLine(const string& newLine);
+
 };
 
 

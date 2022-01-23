@@ -4,8 +4,7 @@
 #include "Components/Physics.h"
 #include "Util/Constants.h"
 #include "Components/EnemyAI.h"
-#include "Managers/GameManager.h"
-
+#include "CursesWrapper/BigTextBox.h"
 bool hasBul = false;
 
 int main()
@@ -18,14 +17,9 @@ int main()
     GameClock* gc = GameClock::getInstance();
     gc->startGameClock();
 
-    SpriteRenderer spr("chaimite");
-    auto go = GameObject::Instantiate();
-    go->addComponent(spr);
-
-    /*
     GameManager* gm = GameManager::getInstance();
     gm->startGame();
-     */
+
     while (true);
     return 0;
 }

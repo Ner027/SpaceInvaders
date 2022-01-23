@@ -24,6 +24,7 @@ private:
     void shootBullet();
     void gameOver();
     void restartLevel();
+    void postLevelCleanup();
     void backToMenu();
     void createBarriers();
     void createSingleBarrier(const Vector2& position);
@@ -37,7 +38,6 @@ public:
     void addScore(int i);
     void endCurrentLevel();
     void winCurrentLevel();
-    void removeLife();
     [[nodiscard]] long getPlayerId() const;
 
 };
