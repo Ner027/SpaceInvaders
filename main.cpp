@@ -7,10 +7,14 @@
 
 int main()
 {
+<<<<<<< HEAD
     this_thread::sleep_for(2s);
 
     setlocale(LC_ALL, "Portuguese");
 
+=======
+    setlocale(LC_ALL, "Portuguese");
+>>>>>>> main
     RenderManager* rm = RenderManager::getInstance();
     rm->startRendering();
 
