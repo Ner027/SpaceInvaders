@@ -18,6 +18,8 @@ void Bullet::onCollision(GameObject *gl, GameObject *gr)
     //Se o objecto com o qual colidiu for o objecto que a criou retornar
     if (gr->getId() == parent->getId())
         return;
+    if (parent->getFlag("playerBullet") && gr->getFlag("playerBullet"))
+        return;
 
     if (parent->getFlag("isEnemy") && gr->getFlag("isEnemy"))
         return;

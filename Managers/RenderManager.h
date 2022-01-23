@@ -16,9 +16,10 @@ private:
     queue<short> inputQueue;
     static RenderManager* instance;
     RenderManager();
-    [[noreturn]] void renderLoop();
+    void renderLoop();
     atomic<bool> shouldClear = false;
-    atomic<bool> keepRunning;
+    atomic<bool> keepRunning = false;
+    void drawBox();
     ~RenderManager();
 public:
     static RenderManager* getInstance();
