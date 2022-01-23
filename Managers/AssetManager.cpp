@@ -251,6 +251,7 @@ vector<ShipContainer> AssetManager::getSpaceShips()
 
 AssetManager::~AssetManager()
 {
+    saveScores();
     for(auto& pair : spritePool)
         delete [] pair.second.getPixelMatrix();
 }
@@ -259,4 +260,69 @@ void AssetManager::destroyInstance()
 {
     delete instance;
     instance = nullptr;
+}
+/// Obtem o top 10 de scores
+/// \return Vector ordenado com as scores
+vector<ScoreContainer> AssetManager::getTopScores()
+{
+    if(topScores.empty())
+    {
+        stringstream ss;
+        ss << ASSET_PATH << "scores.txt";
+        ifstream file=tryOpenFile(ss.str());
+        string buffer;
+
+        while(!file.eof())
+        {
+            getline(file,buffer);
+            auto spl = string_split(buffer,':');
+            if (spl.size() != 2)
+                continue;
+            topScores.insert(pair<string,int>(spl[0], stoi(spl[1])));
+        }
+        file.close();
+    }
+
+    vector<ScoreContainer> tempScore;
+    vector<ScoreContainer> topTen;
+
+    for(auto& pair : topScores)
+        tempScore.emplace_back(pair.second,pair.first);
+
+    auto size = tempScore.size();
+    sort(tempScore.begin(),tempScore.end());
+
+
+    long lastIndex = topScores.size() - 10;
+    if (lastIndex < 0)
+        lastIndex = 0;
+
+    for(auto i = topScores.size();i > lastIndex;--i)
+        topTen.push_back(tempScore[i - 1]);
+
+    return topTen;
+}
+
+void AssetManager::insertScore(const string &playerName, int score)
+{
+    if(topScores.contains(playerName))
+    {
+        if(topScores[playerName]>score)
+            return;
+
+        topScores[playerName]=score;
+    }
+    topScores.insert(pair<string,int>(playerName,score));
+}
+
+void AssetManager::saveScores()
+{
+    stringstream ss;
+    ss << ASSET_PATH << "scores.txt";
+    ofstream file(ss.str());
+
+    for(auto& pair : topScores)
+        file<<pair.first<<":"<<pair.second<<endl;
+
+    file.close();
 }

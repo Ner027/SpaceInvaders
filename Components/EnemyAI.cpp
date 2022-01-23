@@ -33,6 +33,9 @@ void EnemyAI::execute(char curTick)
         //Mover o inimigo
         go->moveBy(currentVelocity);
 
+        if (go->getPosition().getY() >= GW_Y)
+            gameManager->endCurrentLevel();
+
         //Obter os extermos das filas de inimigos
         auto position = go->getPosition();
         if (position.getX() >= farRight.getX())
@@ -50,7 +53,6 @@ void EnemyAI::execute(char curTick)
         }
     }
 
-    //TODO:Melhorar isto multipliers tao todos cegos
 
     int speedMultiplier = 1;
     if (enemiesKilled > enemyCount * 0.25)

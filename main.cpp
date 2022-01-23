@@ -7,6 +7,7 @@
 
 int main()
 {
+    setlocale(LC_ALL, "Portuguese");
     RenderManager* rm = RenderManager::getInstance();
     rm->startRendering();
 

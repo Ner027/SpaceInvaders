@@ -58,21 +58,8 @@ void BigTextBox::draw()
 
 BigTextBox::BigTextBox(const string& _text,const Vector2& position) : ScreenObject(position,{0,0})
 {
-    auto spl = string_split(_text,'\n');
-    for (const auto& str : spl)
-    {
-        vector<Sprite> line;
-        for (auto c : str)
-        {
-            string fname;
-            if (c == ' ')
-                fname = "Space";
-            else fname = string(1,char(toupper(c)));
-            line.emplace_back(fname);
-        }
-        text.push_back(line);
-    }
-    relocateLines();
+    this->localPosition = position;
+    changeTextInternal(_text);
 }
 
 int BigTextBox::getLargestLine()
@@ -113,4 +100,31 @@ int BigTextBox::getLineSize(vector<Sprite>& line)
         i += spr.getSize().getX() + 1;
     return i;
 
+}
+
+void BigTextBox::editText(const string &_text)
+{
+    this->erase();
+    this->text.clear();
+    changeTextInternal(_text);
+    this->draw();
+}
+
+void BigTextBox::changeTextInternal(const string &_text)
+{
+    auto spl = string_split(_text,'\n');
+    for (const auto& str : spl)
+    {
+        vector<Sprite> line;
+        for (auto c : str)
+        {
+            string fname;
+            if (c == ' ')
+                fname = "Space";
+            else fname = string(1,char(toupper(c)));
+            line.emplace_back(fname);
+        }
+        text.push_back(line);
+    }
+    relocateLines();
 }

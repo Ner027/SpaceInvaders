@@ -30,6 +30,7 @@ private:
     void postLevelCleanup();
     static void createBarriers();
     void shipSelectionMenu();
+    void scoreBoardMenu();
     static void createSingleBarrier(const Vector2& position);
     static string getShipDescription(ShipContainer& sc);
     void mainMenu();

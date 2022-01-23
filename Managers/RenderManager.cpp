@@ -1,6 +1,6 @@
-#include <ncurses.h>
 #include "RenderManager.h"
 #include "../Util/Constants.h"
+#include "../CursesWrapper/Rect.h"
 
 RenderManager* RenderManager::instance = nullptr;
 
@@ -50,6 +50,13 @@ void RenderManager::renderLoop()
         {
             /*Devido às limitações do Curses não é possível efetuar operações no ecrã
              * de duas threads diferentes então é necessário isto*/
+            while(!renderQueue.empty())
+            {
+                auto obj = renderQueue.front();
+                obj->eraseInternal();
+                renderQueue.pop();
+                delete obj;
+            }
             clear();
             shouldClear = false;
             continue;
@@ -88,6 +95,7 @@ void RenderManager::startRendering()
     keepRunning = true;
     renderThread = thread(&RenderManager::renderLoop,this);
     renderThread.detach();
+    drawBox();
 }
 
 ///Adiciona uma ação de renderização á fila
@@ -125,6 +133,8 @@ void RenderManager::destroyInstance()
 void RenderManager::clearScreen()
 {
     shouldClear = true;
+    while(!inputQueue.empty());
+    drawBox();
 }
 
 void RenderManager::clearInputQueue()
@@ -139,4 +149,13 @@ void RenderManager::clearInputQueue()
 RenderManager::~RenderManager()
 {
     keepRunning = false;
+}
+
+void RenderManager::drawBox()
+{
+    //Criar as boardas da janela do jogo
+    Rect rect({0,GW_Y},{(GW_X / 2),1},8);
+    rect.draw();
+    Rect rect2({GW_X + 1,0},{1,GW_Y},8);
+    rect2.draw();
 }
