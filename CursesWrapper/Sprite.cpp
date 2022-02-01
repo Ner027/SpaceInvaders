@@ -22,8 +22,8 @@ void Sprite::eraseInternal()
     //Para apagar iterar pelo tamanho do Sprite e colocar um caracter com a cor do background
     attron(COLOR_PAIR(1));
     for (int i = 0; i < internalSize.getY() ; ++i)
-        for (int j = 0; j < internalSize.getX(); ++j)
-            mvprintw(i + localPosition.getY(),localPosition.getX() + j * 2,"  ");
+        for (int j = 0; j < internalSize.getX() * 2; j+=2)
+            mvprintw(i + localPosition.getY(),localPosition.getX() + j,"  ");
     attroff(COLOR_PAIR(1));
 
 }
@@ -94,4 +94,9 @@ const std::string &Sprite::getName()
 const short *Sprite::getPixelMatrix()
 {
     return this->pixelMatrix;
+}
+
+Sprite::Sprite() : ScreenObject({0,0},{0,0}) ,pixelMatrix(nullptr), internalSize(0,0)
+{
+
 }

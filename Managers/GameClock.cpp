@@ -23,9 +23,9 @@ void GameClock::gameLoop()
         auto startTime = high_resolution_clock::now();
 
         //Iterar a lista de objectos
-        for (long i = 0; i < tickObjects.size(); ++i)
+        for (auto it = tickObjects.cbegin();it != tickObjects.cend();)
         {
-            auto tObj = tickObjects[i];
+            auto tObj = *it;
 
             //Se o objecto tem um componente de colisões testar as colisões com os objectos registados
             if (tObj->colliderComponent)
@@ -45,11 +45,15 @@ void GameClock::gameLoop()
                 //Remover da lista de colisões
                 unregisterForCollisions(tObj);
                 //Remover dos objectos de jogo
-                tickObjects.erase(tickObjects.begin() + i);
+                tickObjects.erase(it);
                 //Libertar a memória do object
                 delete tObj;
             }
-            else tObj->tick(currentTick); //Caso contrário executar o tick no objecto
+            else
+            {
+                tObj->tick(currentTick); //Caso contrário executar o tick no objecto
+                ++it;
+            }
         }
 
         //O jogo roda num ciclo de ticks definido, caso tenha chegado ao fim do ciclo resetar o esmo

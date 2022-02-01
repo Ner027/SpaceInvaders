@@ -133,7 +133,7 @@ void RenderManager::destroyInstance()
 void RenderManager::clearScreen()
 {
     shouldClear = true;
-    while(!inputQueue.empty());
+    while(shouldClear);
     drawBox();
 }
 

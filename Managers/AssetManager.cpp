@@ -39,8 +39,12 @@ void AssetManager::tryLoadSprite(const string& spriteName,bool isAnimation)
     Vector2 size(stoi(splString[0]), stoi(splString[1]));
 
     //Alocar espaço para todos os "blocos" do Sprite
-    auto pixelMatrix = new short [size.getX() * size.getY()];
-
+    auto pixelMatrix = new (nothrow) short [(size.getX() * size.getY())];
+    if (pixelMatrix == nullptr)
+    {
+        endwin();
+        cerr << "Impossivel alocar memória" << endl;
+    }
     //Enquanto não chegar ao fim do ficheiro
     while (!file.eof())
     {
@@ -58,7 +62,7 @@ void AssetManager::tryLoadSprite(const string& spriteName,bool isAnimation)
         short color = stos(splString[2]);
 
         //Matriz em forma linear, cada linha é colocada em frente a última
-        pixelMatrix[(y * (size.getX())) + x] = color;
+        pixelMatrix[((y * size.getX()) + x)] = color;
     }
 
     //Dividir o nome dependendo se é um ficheiro de animação ou normal

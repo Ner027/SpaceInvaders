@@ -19,7 +19,6 @@ private:
     void renderLoop();
     atomic<bool> shouldClear = false;
     atomic<bool> keepRunning = false;
-    void drawBox();
     ~RenderManager();
 public:
     static RenderManager* getInstance();
@@ -29,6 +28,7 @@ public:
     void clearScreen();
     void clearInputQueue();
     static void destroyInstance();
+    void drawBox();
 
 };
 

@@ -18,6 +18,7 @@
 #define GAME_LOOP 4
 #define DO_CLEANUP 5
 #define GAMEOVER 6
+#define WIN_LEVEL 7
 
 GameManager* GameManager::instance = nullptr;
 
@@ -76,7 +77,6 @@ void GameManager::gameControllerLoop()
                 break;
         }
     }
-    nextState = DO_CLEANUP;
 }
 
 void GameManager::startGame()
@@ -105,6 +105,7 @@ void GameManager::endCurrentLevel()
 
 void GameManager::startCurrentLevel()
 {
+
     shouldRun = true;
     scoreBox.changeText("Score: " + to_string(score));
     scoreBox.moveTo({5,GW_Y + 2});
@@ -112,11 +113,14 @@ void GameManager::startCurrentLevel()
     livesBox.changeText("Lives: " + to_string(playerLives));
     livesBox.moveTo({GW_X - 13,GW_Y + 2});
 
+    RenderManager::getInstance()->drawBox();
+
     //Criar objecto de controlo dos inimigos
     enemyCtl = GameObject::Instantiate();
 
     //Dependendo do nivel colocar os inimigos correctos
     vector<string> enemyNames;
+
     switch (currentLevel)
     {
         case 0:
@@ -185,11 +189,11 @@ long GameManager::getPlayerId() const
 void GameManager::gameOver()
 {
     currentLevel = 0;
-    //Colocar no ecrã o desenho de GameOver
-    RenderManager* rm = RenderManager::getInstance();
-    Sprite spr("gameover");
-    spr.moveTo(centerToScreen(&spr));
+    BigTextBox gameover("Gameover\nSpace to Continue",{0,0});
+    gameover.moveTo(centerToScreen(&gameover));
 
+    RenderManager* rm = RenderManager::getInstance();
+    AssetManager::getInstance()->insertScore(playerName,score);
     //Esperar que o jogador clique na barra de espaços
     while (true)
     {
@@ -197,8 +201,6 @@ void GameManager::gameOver()
         if (kp == ' ')
             break;
     }
-    //Apagar o desenho
-    spr.erase();
     nextState = MAIN_MENU;
 }
 
@@ -230,27 +232,9 @@ void GameManager::createSingleBarrier(const Vector2& position)
 
 void GameManager::winCurrentLevel()
 {
-    //Se não for o último nível, ir para o próximo
-    if (currentLevel != 2)
-    {
-        currentLevel++;
-        nextState = START_LEVEL;
-    }
-    else
-    {
-        RenderManager::getInstance()->clearScreen();
-        GameClock::getInstance()->killAll();
-        AssetManager::getInstance()->insertScore(playerName,score);
-        BigTextBox textBox("You are the champion\nFinal Score\n" + to_string(score),{0,0});
-        textBox.moveTo(centerToScreen(&textBox));
-        this_thread::sleep_for(3s);
-        RenderManager::getInstance()->clearScreen();
-        nextState = MAIN_MENU;
-    }
-    GameClock::getInstance()->killAll();
-    RenderManager::getInstance()->clearScreen();
     hasWon = true;
     shouldRun = false;
+    nextState = WIN_LEVEL;
 }
 
 void GameManager::shipSelectionMenu()
@@ -307,32 +291,32 @@ void GameManager::postLevelCleanup()
 {
     shouldRun = false;
     GameClock::getInstance()->killAll();
-    this_thread::sleep_for(0.5s);
     RenderManager::getInstance()->clearInputQueue();
-    scoreBox.erase();
-    livesBox.erase();
+    RenderManager::getInstance()->clearScreen();
+    this_thread::sleep_for(0.5s);
 
-    string text;
     if (!hasWon)
     {
-        if(--playerLives == 0)
+        playerLives--;
+        if(playerLives == 0)
         {
+            shouldRun = false;
             nextState = GAMEOVER;
             return;
         }
-        text = to_string(playerLives)  + "\nHP\nLeft";
+        BigTextBox textBox(to_string(playerLives) + "\nHP\nLeft", {0,0});
+        textBox.moveTo(centerToScreen(&textBox));
+        this_thread::sleep_for(3s);
+        textBox.erase();
     }
     else
     {
-        text = "You Won\nScore " + to_string(score);
+        BigTextBox textBox("You Won\nScore " + to_string(score), {0,0});
+        textBox.moveTo(centerToScreen(&textBox));
+        this_thread::sleep_for(3s);
+        textBox.erase();
         hasWon = false;
-        nextState = MAIN_MENU;
     }
-
-    BigTextBox textBox(text, {0,0});
-    textBox.moveTo(centerToScreen(&textBox));
-    this_thread::sleep_for(3s);
-    textBox.erase();
     nextState = START_LEVEL;
 }
 
@@ -345,14 +329,17 @@ string GameManager::getShipDescription(ShipContainer& sc)
 
 void GameManager::mainMenu()
 {
-    bool keepPooling = true;
     RenderManager* rm = RenderManager::getInstance();
+    rm->clearScreen();
+    rm->clearInputQueue();
 
+    currentLevel = 0;
+    bool keepPooling = true;
     int selection = 0;
     BigTextBox title("Space\nInvaders\n \nStart\n \nScoreboard\n \nExit",{170,5});
 
     Sprite selector("selector");
-    selector.moveTo({GW_X - 15,26});
+    selector.moveTo({GW_X - 15,24});
 
     Sprite spr("xaimite");
     spr.moveTo(Vector2(0, GW_Y/2 - spr.getSize().getY()/2));
@@ -404,6 +391,7 @@ void GameManager::mainMenu()
             nextState = SHIP_MENU;
             break;
         case 1:
+            nextState = SCOREBOARD_MENU;
             break;
         case 2:
             RenderManager::destroyInstance();
@@ -474,6 +462,7 @@ void GameManager::scoreBoardMenu()
     string bf;
     for (auto& sc : scores)
         bf += sc.playerName + " " + to_string(sc.score) + "\n";
+
     BigTextBox textBox(bf,{0,0});
     textBox.moveTo(centerToScreen(&textBox) + Vector2(0,3));
     while(true)
@@ -513,9 +502,35 @@ void GameManager::stateMachine()
             case GAMEOVER:
                 gameOver();
                 break;
+            case WIN_LEVEL:
+                winLevel();
+                break;
             default:
                 break;
         }
+    }
+}
+
+void GameManager::winLevel()
+{
+    if (currentLevel != 2)
+    {
+        currentLevel++;
+        nextState = DO_CLEANUP;
+        return;
+    }
+    else
+    {
+        shouldRun = false;
+        GameClock::getInstance()->killAll();
+        RenderManager::getInstance()->clearScreen();
+        BigTextBox textBox("You are the champion\nFinal Score\n" + to_string(score),{0,0});
+        textBox.moveTo(centerToScreen(&textBox));
+        this_thread::sleep_for(3s);
+        nextState = MAIN_MENU;
+        currentLevel = 0;
+        AssetManager::getInstance()->insertScore(playerName,score);
+        return;
     }
 }
 

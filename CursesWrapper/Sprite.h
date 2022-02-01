@@ -16,6 +16,7 @@ private:
 public:
     explicit Sprite(const std::string& name);
     Sprite(const Sprite& og);
+    Sprite();
     void draw() override;
     void erase() override;
     void moveTo(const Vector2 &nPos) override;

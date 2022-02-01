@@ -37,6 +37,7 @@ private:
     void stateMachine();
     static string getShipDescription(ShipContainer& sc);
     void mainMenu();
+    void winLevel();
     GameManager();
 public:
     atomic<bool> enemyCanFire = true;
